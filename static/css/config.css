@@ -1,0 +1,141 @@
+/* General page layout */
+.config-form {
+  max-width: 100%;
+  padding-left: 0;
+  margin-left: 0;
+}
+.config-title {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+.config-container {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  width: 100%;
+}
+.config-section {
+  width: 33.333%;
+  min-width: 250px;
+  flex: 0 0 calc(33.333% - 2rem);
+  position: relative;
+}
+@media (max-width: 768px) {
+  .config-container {
+    flex-direction: column;
+  }
+  .config-section {
+    width: 100%;
+    flex: 1 0 auto;
+  }
+}
+
+/* Dropdown */
+.dropdown-container {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 0.75rem;
+  position: relative;
+  overflow: hidden;
+}
+.dropdown-label {
+  display: block;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-weight: bold;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 0;
+}
+.dropdown-container:not(.active) .dropdown-label {
+  border-bottom: none;
+}
+.dropdown-icon {
+  position: absolute;
+  right: 10px;
+  top: 8px;
+  transition: transform 0.3s;
+}
+.dropdown-content {
+  padding: 6px 10px;
+  display: none;
+  margin: 0;
+}
+.dropdown-content.active {
+  display: block;
+}
+.dropdown-container.active .dropdown-icon {
+  transform: rotate(180deg);
+}
+
+/* Inline form-group */
+.inline-form-group {
+  margin-bottom: 0.25rem;
+}
+.inline-form-group label {
+  margin-right: 10px;
+  white-space: nowrap;
+}
+.inline-form-group input {
+  box-sizing: border-box;
+}
+.hint {
+  display: none;
+}
+
+/* Inputs dropdown: 35% label, 65% input, left-aligned */
+#inputs-content .inline-form-group {
+  display: flex !important;
+  width: 100% !important;
+  justify-content: space-between !important;
+}
+#inputs-content .inline-form-group label {
+  flex: 0 0 auto !important;
+  text-align: left !important;
+  margin-right: 10px !important;
+}
+#inputs-content .inline-form-group input {
+  flex: 0 0 65% !important;
+  width: 65% !important;
+  text-align: left !important;
+}
+
+/* Outputs dropdown: same split as inputs */
+#outputs-content .inline-form-group {
+  display: flex !important;
+  width: 100% !important;
+  justify-content: space-between !important;
+}
+#outputs-content .inline-form-group label {
+  flex: 0 0 auto !important;
+  text-align: left !important;
+  margin-right: 10px !important;
+}
+#outputs-content .inline-form-group input {
+  flex: 0 0 65% !important;
+  width: 65% !important;
+  text-align: left !important;
+}
+
+/* Button alignment under the rightmost section */
+.button-container {
+  margin-top: 1rem;
+}
+.button-container.align-env {
+  display: flex;
+  justify-content: flex-end;
+  width: 33.333%;
+  margin-left: auto;
+}
+button[type="submit"] {
+  padding: 8px 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+button[type="submit"]:hover {
+  background-color: #45a049;
+} 
