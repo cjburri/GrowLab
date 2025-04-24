@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}34 Bongwood St.{% endblock %}</title>
+    <title>{% block title %}GrowLab{% endblock %}</title>
+    <!-- Global in-page styles -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,7 +12,7 @@
             padding: 0;
         }
         header {
-            background-color: #333;
+            background-color: #155a00;
             color: white;
             padding: 20px;
             text-align: center;
@@ -82,7 +83,7 @@
         
         /* Navigation styles */
         nav {
-            background-color: #444;
+            background-color: #1a7000;
             overflow: hidden;
         }
         nav a {
@@ -94,10 +95,11 @@
             text-decoration: none;
         }
         nav a:hover {
-            background-color: #555;
+            background-color: #155a00;
         }
         nav a.active {
-            background-color: #2196F3;
+            background-color: #ffffff;
+            color: #155a00;
         }
         
         /* Additional styles for config page */
@@ -138,13 +140,14 @@
         button[type="submit"]:hover {
             background-color: #0b7dda;
         }
-        
-        {% block additional_styles %}{% endblock %}
     </style>
+
+    {# A new block for page-specific <link> tags #}
+    {% block head_links %}{% endblock %}
 </head>
 <body>
     <header>
-        34 BongRip St.
+        GrowLab
     </header>
     <nav>
         <a href="/" {% if active_page == 'home' %}class="active"{% endif %}>Home</a>

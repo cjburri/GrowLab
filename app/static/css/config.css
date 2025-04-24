@@ -1,0 +1,203 @@
+.config-title {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.config-container {
+  display: flex;
+  justify-content: center; /* Center align sections horizontally */
+  gap: 3rem; /* Increased from 2rem to provide more space for the divider */
+  width: 100%;
+  padding-left: 0 !important;
+}
+
+.config-section {
+  width: 33.333%;
+  min-width: 250px;
+  flex: 0 0 calc(33.333% - 2rem); /* Adjusted calculation for the new gap */
+  position: relative;
+}
+
+
+.config-section:first-child {
+  margin-left: 0 !important; /* Ensure the first section starts at the left edge */
+}
+
+.config-form {
+  width: 100%;
+  max-width: 100%;
+  padding-left: 0;
+  margin-left: 0;
+}
+
+.config-section h3 {
+  margin-top: 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #ddd;
+}
+
+@media (max-width: 768px) {
+  .config-container {
+      flex-direction: column;
+  }
+  
+  .config-section {
+      width: 100%;
+      flex: 1 0 auto;
+  }
+}
+
+/* Dropdown styles */
+.dropdown-container {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  position: relative;
+  overflow: hidden; /* Hide any overflow content */
+}
+
+.dropdown-label {
+  display: block;
+  padding: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 0; /* Remove any bottom margin */
+}
+
+.dropdown-icon {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  transition: transform 0.3s;
+}
+
+.dropdown-content {
+  padding: 10px;
+  display: none;
+  margin: 0; /* Remove any margin */
+}
+
+/* When dropdown is not active, remove the border-bottom from label */
+.dropdown-container:not(.active) .dropdown-label {
+  border-bottom: none;
+}
+
+.dropdown-content input[type="number"] {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.dropdown-content.active {
+  display: block;
+}
+
+.dropdown-container.active .dropdown-icon {
+  transform: rotate(180deg);
+}
+
+/* Remove any general inline form group styling that might be conflicting */
+.inline-form-group {
+  margin-bottom: 0.25rem;
+}
+
+/* Specific styling for inputs dropdown */
+#inputs-content .inline-form-group {
+  display: flex !important;
+  width: 100% !important;
+  justify-content: space-between !important; /* Push items to the edges */
+}
+
+#inputs-content .inline-form-group label {
+  flex: 0 0 auto !important; /* Only take as much space as needed */
+  text-align: left !important;
+  padding-left: 0 !important;
+  margin-right: 10px !important;
+  margin-top: 8px !important;
+}
+
+#inputs-content .inline-form-group input {
+  flex: 0 0 55% !important;
+  width: 55% !important;
+  text-align: left !important; /* Left-align the text in inputs */
+}
+
+/* Specific styling for outputs dropdown */
+#outputs-content .inline-form-group {
+  display: flex !important;
+  width: 100% !important;
+  justify-content: space-between !important; /* Push items to the edges */
+}
+
+#outputs-content .inline-form-group label {
+  flex: 0 0 auto !important; /* Only take as much space as needed */
+  text-align: left !important;
+  padding-left: 0 !important;
+  margin-right: 10px !important;
+  margin-top: 8px !important;
+}
+
+#outputs-content .inline-form-group input {
+  flex: 0 0 55% !important;
+  width: 55% !important;
+  text-align: left !important; /* Left-align the text in inputs */
+}
+
+/* Hide the hint divs since we're using placeholders */
+.hint {
+  display: none;
+}
+
+/* Style for placeholder text */
+::placeholder {
+  color: #999;
+  font-size: 0.85em;
+}
+
+/* Button container for left-column alignment */
+.button-container.align-hw {
+  display: flex;
+  justify-content: center;
+  width: 100%;    /* span full form width */
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Button styling */
+button[type="submit"] {
+  padding: 8px 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button[type="submit"]:hover {
+  background-color: #45a049;
+}
+/* Inline two fields with a separator */
+.inline-thresholds {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5ch;        /* small gap between items */
+}
+
+.inline-thresholds input {
+  width: 4ch;        /* adjust as needed for your widths */
+  padding: 0.2em;
+  text-align: right;
+}
+
+.inline-thresholds .sep,
+.inline-thresholds .percent {
+  white-space: nowrap;
+  font-weight: bold;
+}
+
+.form-actions {
+  text-align: right;      /* right‐align the button */
+  margin-bottom: 1rem;    /* space before the hardware section */
+}
