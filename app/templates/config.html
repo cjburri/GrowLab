@@ -1,0 +1,386 @@
+{% extends "header.html" %}
+
+{% block title %}34 Bongwood St. - Configuration{% endblock %}
+
+{% block content %}
+<div class="config-form">
+    <h2 class="config-title">System Configuration</h2>
+    
+    <form id="config-form" action="/api/config" method="POST">
+        <div class="config-container">
+            <div class="config-section">
+                <h3>Hardware Configuration</h3>
+                
+                <div class="form-group dropdown-container">
+                    <label for="inputs-dropdown" class="dropdown-label">Inputs</label>
+                    <div class="dropdown-icon">▼</div>
+                    <div class="dropdown-content" id="inputs-content">
+                        <div class="form-group inline-form-group">
+                            <label for="light-pin-in">Light Sensor GPIO Pin:</label>
+                            <input type="number" id="light-pin-in" name="light_pin_in" min="1" max="40" value="{{ config.light_pin_in }}" placeholder="GPIO pin number for the light sensor">
+                        </div>
+                        
+                        <div class="form-group inline-form-group">
+                            <label for="humidity-pin-in">Humidity Sensor GPIO Pin:</label>
+                            <input type="number" id="humidity-pin-in" name="humidity_pin_in" min="1" max="40" value="{{ config.humidity_pin_in }}" placeholder="GPIO pin number for the humidity sensor">
+                        </div>
+                        
+                        <div class="form-group inline-form-group">
+                            <label for="temperature-pin-in">Temperature Sensor GPIO Pin:</label>
+                            <input type="number" id="temperature-pin-in" name="temperature_pin_in" min="1" max="40" value="{{ config.temperature_pin_in }}" placeholder="GPIO pin number for the temperature sensor">
+                        </div>
+                        
+                        <div class="form-group inline-form-group">
+                            <label for="ultrasonic-pin-in">Ultrasonic Sensor GPIO Pin:</label>
+                            <input type="number" id="ultrasonic-pin-in" name="ultrasonic_pin_in" min="1" max="40" value="{{ config.ultrasonic_pin_in }}" placeholder="GPIO pin number for the ultrasonic sensor">
+                        </div>  
+                        
+                        <div class="form-group inline-form-group">
+                            <label for="soil-moisture-pin-in">Soil Moisture Sensor GPIO Pin:</label>
+                            <input type="number" id="soil-moisture-pin-in" name="soil_moisture_pin_in" min="1" max="40" value="{{ config.soil_moisture_pin_in }}" placeholder="GPIO pin number for the soil moisture sensor">
+                        </div>  
+                    </div>
+                </div>
+                
+                <div class="form-group dropdown-container">
+                    <label for="outputs-dropdown" class="dropdown-label">Outputs</label>
+                    <div class="dropdown-icon">▼</div>
+                    <div class="dropdown-content" id="outputs-content">
+                        <div class="form-group inline-form-group">
+                            <label for="light-pin">Light GPIO Pin:</label>
+                            <input type="number" id="light-pin" name="light_pin" min="1" max="40" value="{{ config.light_pin }}" placeholder="GPIO pin number for the light relay signal line">
+                        </div>
+                        
+                        <div class="form-group inline-form-group">
+                            <label for="water-pin">Water Pump GPIO Pin:</label>
+                            <input type="number" id="water-pin" name="water_pin" min="1" max="40" value="{{ config.water_pin }}" placeholder="GPIO pin number for the water pump relay signal line">
+                        </div>
+                        
+                        <div class="form-group inline-form-group">
+                            <label for="humidifier-pin">Humidifier GPIO Pin:</label>
+                            <input type="number" id="humidifier-pin" name="humidifier_pin" min="1" max="40" value="{{ config.humidifier_pin }}" placeholder="GPIO pin number for the humidifier relay signal line">
+                        </div>
+
+                        <div class="form-group inline-form-group">
+                            <label for="heater-pin">Heater GPIO Pin:</label>
+                            <input type="number" id="heater-pin" name="heater_pin" min="1" max="40" value="{{ config.heater_pin }}" placeholder="GPIO pin number for the heater relay signal line">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="config-section">
+                <h3>Environment Settings</h3>
+                <div class="form-group">
+                    <label for="light-schedule">Light Schedule</label>
+                    <select id="light-schedule" name="light_schedule">
+                        <option value="off" {% if config.light_schedule == 'off' %}selected{% endif %}>Off</option>
+                        <option value="18/6" {% if config.light_schedule == '18/6' %}selected{% endif %}>18/6 (18h on, 6h off)</option>
+                        <option value="12/12" {% if config.light_schedule == '12/12' %}selected{% endif %}>12/12 (12h on, 12h off)</option>
+                        <option value="custom" {% if config.light_schedule == 'custom' %}selected{% endif %}>Custom</option>
+                    </select>
+                    <div class="hint">Light cycle schedule</div>
+                </div>
+                
+                <div class="form-group" id="custom-light-container" style="display: {% if config.light_schedule == 'custom' %}block{% else %}none{% endif %};">
+                    <label for="custom-light-on">Custom Light On Time (hours)</label>
+                    <input type="number" id="custom-light-on" name="custom_light_on" min="1" max="23" value="{{ config.custom_light_on }}">
+                    <div class="hint">Hours to keep light on in custom schedule</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="humidity-target">Target Humidity (%)</label>
+                    <input type="number" id="humidity-target" name="humidity_target" min="20" max="95" value="{{ config.humidity_target }}">
+                    <div class="hint">Target humidity percentage</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="humidity-tolerance">Humidity Tolerance (±%)</label>
+                    <input type="number" id="humidity-tolerance" name="humidity_tolerance" min="1" max="20" value="{{ config.humidity_tolerance }}">
+                    <div class="hint">Acceptable deviation from target humidity</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="button-container align-env">
+            <button type="submit">Save Configuration</button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .config-title {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .config-container {
+        display: flex;
+        justify-content: center; /* Center align sections horizontally */
+        gap: 3rem; /* Increased from 2rem to provide more space for the divider */
+        width: 100%;
+        padding-left: 0 !important;
+    }
+    
+    .config-section {
+        width: 33.333%;
+        min-width: 250px;
+        flex: 0 0 calc(33.333% - 2rem); /* Adjusted calculation for the new gap */
+        position: relative;
+    }
+
+    
+    .config-section:first-child {
+        margin-left: 0 !important; /* Ensure the first section starts at the left edge */
+    }
+    
+    .config-form {
+        width: 100%;
+        max-width: 100%;
+        padding-left: 0;
+        margin-left: 0;
+    }
+    
+    .config-section h3 {
+        margin-top: 0;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    @media (max-width: 768px) {
+        .config-container {
+            flex-direction: column;
+        }
+        
+        .config-section {
+            width: 100%;
+            flex: 1 0 auto;
+        }
+    }
+    
+    /* Dropdown styles */
+    .dropdown-container {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+        position: relative;
+        overflow: hidden; /* Hide any overflow content */
+    }
+    
+    .dropdown-label {
+        display: block;
+        padding: 10px;
+        cursor: pointer;
+        font-weight: bold;
+        background-color: #f5f5f5;
+        border-bottom: 1px solid #ddd;
+        margin-bottom: 0; /* Remove any bottom margin */
+    }
+    
+    .dropdown-icon {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        transition: transform 0.3s;
+    }
+    
+    .dropdown-content {
+        padding: 10px;
+        display: none;
+        margin: 0; /* Remove any margin */
+    }
+    
+    /* When dropdown is not active, remove the border-bottom from label */
+    .dropdown-container:not(.active) .dropdown-label {
+        border-bottom: none;
+    }
+    
+    .dropdown-content input[type="number"] {
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .dropdown-content.active {
+        display: block;
+    }
+    
+    .dropdown-container.active .dropdown-icon {
+        transform: rotate(180deg);
+    }
+    
+    /* Remove any general inline form group styling that might be conflicting */
+    .inline-form-group {
+        margin-bottom: 0.25rem;
+    }
+    
+    /* Specific styling for inputs dropdown */
+    #inputs-content .inline-form-group {
+        display: flex !important;
+        width: 100% !important;
+        justify-content: space-between !important; /* Push items to the edges */
+    }
+    
+    #inputs-content .inline-form-group label {
+        flex: 0 0 auto !important; /* Only take as much space as needed */
+        text-align: left !important;
+        padding-left: 0 !important;
+        margin-right: 10px !important;
+    }
+    
+    #inputs-content .inline-form-group input {
+        flex: 0 0 55% !important;
+        width: 55% !important;
+        text-align: left !important; /* Left-align the text in inputs */
+    }
+    
+    /* Specific styling for outputs dropdown */
+    #outputs-content .inline-form-group {
+        display: flex !important;
+        width: 100% !important;
+        justify-content: space-between !important; /* Push items to the edges */
+    }
+    
+    #outputs-content .inline-form-group label {
+        flex: 0 0 auto !important; /* Only take as much space as needed */
+        text-align: left !important;
+        padding-left: 0 !important;
+        margin-right: 10px !important;
+    }
+    
+    #outputs-content .inline-form-group input {
+        flex: 0 0 55% !important;
+        width: 55% !important;
+        text-align: left !important; /* Left-align the text in inputs */
+    }
+    
+    /* Hide the hint divs since we're using placeholders */
+    .hint {
+        display: none;
+    }
+    
+    /* Style for placeholder text */
+    ::placeholder {
+        color: #999;
+        font-size: 0.85em;
+    }
+    
+    /* Button container for right alignment */
+    .button-container {
+        margin-top: 1rem;
+    }
+    
+    /* Align the save button under the right-hand (Environment Settings) column */
+    .button-container.align-env {
+        display: flex;
+        justify-content: flex-end;
+        width: 33.333%;    /* matches one .config-section width */
+        margin-left: auto; /* pushes it to the right edge */
+    }
+    
+    /* Button styling */
+    button[type="submit"] {
+        padding: 8px 16px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    
+    button[type="submit"]:hover {
+        background-color: #45a049;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Show/hide custom light schedule options
+    document.getElementById('light-schedule').addEventListener('change', function() {
+        const customContainer = document.getElementById('custom-light-container');
+        if (this.value === 'custom') {
+            customContainer.style.display = 'block';
+        } else {
+            customContainer.style.display = 'none';
+        }
+    });
+    
+    // Handle form submission
+    document.getElementById('config-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const jsonData = {};
+        
+        for (const [key, value] of formData.entries()) {
+            jsonData[key] = value;
+        }
+        
+        fetch('/api/config', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(jsonData),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Configuration saved successfully!');
+            } else {
+                alert('Error saving configuration: ' + data.message);
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            alert('Error saving configuration. See console for details.');
+        });
+    });
+    
+    // Get current configuration
+    function getConfig() {
+        fetch('/api/config')
+            .then(response => response.json())
+            .then(data => {
+                // Update form fields with current config
+                for (const [key, value] of Object.entries(data)) {
+                    const element = document.querySelector(`[name="${key}"]`);
+                    if (element) {
+                        element.value = value;
+                    }
+                }
+                
+                // Handle special case for custom light schedule
+                if (data.light_schedule === 'custom') {
+                    document.getElementById('custom-light-container').style.display = 'block';
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    }
+    
+    // Load initial config when page loads
+    window.onload = getConfig;
+    
+    // Dropdown functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropdownContainers = document.querySelectorAll('.dropdown-container');
+        
+        dropdownContainers.forEach(container => {
+            const dropdownLabel = container.querySelector('.dropdown-label');
+            const dropdownContent = container.querySelector('.dropdown-content');
+            
+            // Show all dropdown content by default
+            dropdownContent.classList.add('active');
+            container.classList.add('active');
+            
+            dropdownLabel.addEventListener('click', function() {
+                dropdownContent.classList.toggle('active');
+                container.classList.toggle('active');
+            });
+        });
+    });
+</script>
+{% endblock %} 

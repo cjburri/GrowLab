@@ -1,167 +1,84 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>34 Bongwood St.</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background-color: #333;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-        }
-        .controls-section {
-            padding: 20px;
-            width: 50%;
-            margin: 0;
-            box-sizing: border-box;
-        }
-        .controls-section h2 {
-            color: #333;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 10px;
-            text-align: left;
-        }
-        .control-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid #eee;
-        }
-        .control-label {
-            font-size: 18px;
-        }
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
-        }
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 34px;
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-        input:checked + .slider {
-            background-color: #2196F3;
-        }
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-    </style>
-</head>
-<body>
-    <header>
-        34 BongRip St.
-    </header>
-    <main>
-        <section class="controls-section">
-            <h2>Controls</h2>
-            <div class="control-item">
-                <span class="control-label">Light</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="light-control">
-                    <span class="slider"></span>
-                </label>
-            </div>
-            <div class="control-item">
-                <span class="control-label">Humidifier</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="humidifier-control">
-                    <span class="slider"></span>
-                </label>
-            </div>
-            <div class="control-item">
-                <span class="control-label">Water</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="water-control">
-                    <span class="slider"></span>
-                </label>
-            </div>
-        </section>
-    </main>
+{% extends "header.html" %}
 
-    <script>
-        // Function to send control commands to the server
-        function updateControl(device, state) {
-            fetch('/api/control', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    device: device,
-                    state: state
-                }),
-            })
+{% block title %}34 Bongwood St. - Home{% endblock %}
+
+{% block content %}
+<section class="controls-section">
+    <h2>Controls</h2>
+    <div class="control-item">
+        <span class="control-label">Light</span>
+        <label class="toggle-switch">
+            <input type="checkbox" id="light-control">
+            <span class="slider"></span>
+        </label>
+    </div>
+    <div class="control-item">
+        <span class="control-label">Humidifier</span>
+        <label class="toggle-switch">
+            <input type="checkbox" id="humidifier-control">
+            <span class="slider"></span>
+        </label>
+    </div>
+    <div class="control-item">
+        <span class="control-label">Water</span>
+        <label class="toggle-switch">
+            <input type="checkbox" id="water-control">
+            <span class="slider"></span>
+        </label>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Function to send control commands to the server
+    function updateControl(device, state) {
+        fetch('/api/control', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                device: device,
+                state: state
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(`${device} is now ${state ? 'ON' : 'OFF'}`);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+
+    // Get initial status
+    function getStatus() {
+        fetch('/api/status')
             .then(response => response.json())
             .then(data => {
-                console.log(`${device} is now ${state ? 'ON' : 'OFF'}`);
+                document.getElementById('light-control').checked = data.light;
+                document.getElementById('humidifier-control').checked = data.humidifier;
+                document.getElementById('water-control').checked = data.water;
             })
             .catch((error) => {
                 console.error('Error:', error);
             });
-        }
+    }
 
-        // Get initial status
-        function getStatus() {
-            fetch('/api/status')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('light-control').checked = data.light;
-                    document.getElementById('humidifier-control').checked = data.humidifier;
-                    document.getElementById('water-control').checked = data.water;
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                });
-        }
-
-        // Load initial status when page loads
-        window.onload = getStatus;
-        
-        document.getElementById('light-control').addEventListener('change', function() {
-            updateControl('light', this.checked);
-        });
-        
-        document.getElementById('humidifier-control').addEventListener('change', function() {
-            updateControl('humidifier', this.checked);
-        });
-        
-        document.getElementById('water-control').addEventListener('change', function() {
-            updateControl('water', this.checked);
-        });
-    </script>
-</body>
-</html> 
+    // Load initial status when page loads
+    window.onload = getStatus;
+    
+    document.getElementById('light-control').addEventListener('change', function() {
+        updateControl('light', this.checked);
+    });
+    
+    document.getElementById('humidifier-control').addEventListener('change', function() {
+        updateControl('humidifier', this.checked);
+    });
+    
+    document.getElementById('water-control').addEventListener('change', function() {
+        updateControl('water', this.checked);
+    });
+</script>
+{% endblock %} 
