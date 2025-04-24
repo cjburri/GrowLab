@@ -1,0 +1,31 @@
+{
+  "pins": {
+    "water_relay": {
+      "pin": 23,
+      "initial_state": "LOW"
+    },
+    "light_relay": {
+      "pin": 24,
+      "initial_state": "LOW"
+    },
+    "atomizer_relay": {
+      "pin": 25,
+      "initial_state": "LOW"
+    },
+    "temperature_sensor": {
+      "pin": 4
+    },
+    "serial_clock": {
+      "pin": 11
+    },
+    "miso": {
+      "pin": 9
+    },
+    "mosi": {
+      "pin": 10
+    },
+    "chip_select": {
+      "pin": 8
+    }
+  }
+}
