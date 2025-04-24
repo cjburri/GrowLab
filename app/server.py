@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, jsonify
+from app.models import db, Config
 
 bp = Blueprint('api', __name__)
 
@@ -8,76 +9,71 @@ def index():
 
 @bp.route('/config')
 def config():
-    # Get current configuration
-    # This is a placeholder - you'll need to implement actual config retrieval
-    current_config = {
-        'light_pin_out': 24,
-        'water_pin_out': 23,
-        'atomizer_pin_out': 25,
-        'heater_pin_out': 1,
-        'light_pin_in': 1,
-        'humidity_pin_in': 1,
-        'temperature_pin_in': 4,
-        'ultrasonic_pin_in': 1,
-        'soil_moisture_pin_in': 1,
-    }
-    return render_template('config.html', active_page='config', config=current_config)
+    # Get current configuration from database
+    config = Config.query.first()
+    return render_template('config.html', active_page='config', config=config)
 
+@bp.route('/api/config', methods=['GET'])
+def get_config():
+    # Get current configuration from database
+    config = Config.query.first()
+    if not config:
+        # Create default config if none exists
+        config = Config()
+        db.session.add(config)
+        db.session.commit()
+    
+    return jsonify(config.to_dict())
 
-@bp.route('/api/config', methods=['GET', 'POST'])
-def handle_config():
-    if request.method == 'GET':
-        # Return current configuration
-        # This is a placeholder - implement actual config retrieval
-        return jsonify({
-            'light_pin': 17,
-            'water_pin': 18,
-            'humidifier_pin': 27,
-            'watering_duration': 5,
-            'light_schedule': '18/6',
-            'custom_light_on': 16,
-            'humidity_target': 65,
-            'humidity_tolerance': 5
-        })
-    else:  # POST
-        # Save new configuration
-        config_data = request.json
-        
-        # Validate and save configuration
-        # This is a placeholder - implement actual config saving
-        
-        return jsonify({'success': True}) 
+@bp.route('/api/config', methods=['POST'])
+def update_config():
+    # Get current configuration from database
+    config = Config.query.first()
+    if not config:
+        config = Config()
+        db.session.add(config)
+    
+    # Update configuration with form data
+    data = request.json
+    
+    # Update each field if it exists in the request
+    for key, value in data.items():
+        if hasattr(config, key):
+            # Convert string values to integers where needed
+            if isinstance(getattr(config, key), int):
+                try:
+                    setattr(config, key, int(value))
+                except ValueError:
+                    return jsonify({'success': False, 'message': f'Invalid value for {key}'})
+            else:
+                setattr(config, key, value)
+    
+    # Save changes
+    try:
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)})
 
+# Add your existing control endpoints here
+@bp.route('/api/status', methods=['GET'])
+def get_status():
+    # This is a placeholder - you'll need to implement actual status retrieval
+    return jsonify({
+        'light': False,
+        'humidifier': False,
+        'water': False
+    })
 
 @bp.route('/api/control', methods=['POST'])
-def control():
+def control_device():
+    # This is a placeholder - you'll need to implement actual device control
     data = request.json
     device = data.get('device')
-    state = data.get('state')
+    state = data.get('state', False)
     
-    if device == 'water':
-        pin = WATER_RELAY_PIN
-    # elif device == 'light':
-    #     pin = LIGHT_RELAY_PIN
-    # elif device == 'humidifier':
-    #     pin = HUMIDIFIER_PIN
-    else:
-        return jsonify({'status': 'error', 'message': 'Invalid device'}), 400
-    
-    # Set the GPIO pin high or low based on the state
-    if state:
-        GPIO.output(pin, GPIO.HIGH)
-    else:
-        GPIO.output(pin, GPIO.LOW)
-    
+    # Here you would actually control the GPIO pins
+    # For now, just return success
     return jsonify({'status': 'success', 'device': device, 'state': state})
-
-# @bp.route('/api/status', methods=['GET'])
-# def status():
-#     # Return the current status of all devices
-#     return jsonify({
-#         'water': GPIO.input(WATER_RELAY_PIN) == GPIO.HIGH,
-#         # 'light': GPIO.input(LIGHT_RELAY_PIN) == GPIO.HIGH,
-#         # 'humidifier': GPIO.input(HUMIDIFIER_RELAY_PIN) == GPIO.HIGH
-#     })
 
