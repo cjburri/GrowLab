@@ -1,0 +1,143 @@
+{% extends "header.html" %}
+
+{% block title %}34 Bongwood St. - Configuration{% endblock %}
+
+{% block head_links %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/config.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="config-form">
+    <h2 class="config-title">System Configuration</h2>
+    
+    <form id="config-form" action="/api/config" method="POST">
+        
+        <div class="config-container">
+            <div class="config-section">
+                <h3>Hardware Configuration</h3>
+                
+                <div class="form-group dropdown-container">
+                    <label for="inputs-dropdown" class="dropdown-label">Inputs</label>
+                    <div class="dropdown-icon">▼</div>
+                    <div class="dropdown-content" id="inputs-content">
+                        <div class="form-group inline-form-group">
+                            <label for="light-pin-in">Light Sensor GPIO Pin:</label>
+                            <input type="number" id="light-pin-in" name="light_pin_in" min="1" max="40" value="{{ config.light_pin_in }}" placeholder="GPIO pin number for the light sensor">
+                        </div>
+                        
+                        <div class="form-group inline-form-group">
+                            <label for="humidity-pin-in">Humidity Sensor GPIO Pin:</label>
+                            <input type="number" id="humidity-pin-in" name="humidity_pin_in" min="1" max="40" value="{{ config.humidity_pin_in }}" placeholder="GPIO pin number for the humidity sensor">
+                        </div>
+                        
+                        <div class="form-group inline-form-group">
+                            <label for="temperature-pin-in">Temperature Sensor GPIO Pin:</label>
+                            <input type="number" id="temperature-pin-in" name="temperature_pin_in" min="1" max="40" value="{{ config.temperature_pin_in }}" placeholder="GPIO pin number for the temperature sensor">
+                        </div>
+                        
+                        <div class="form-group inline-form-group">
+                            <label for="ultrasonic-trigger-pin-in">Ultrasonic Trigger GPIO Pin:</label>
+                            <input type="number" id="ultrasonic-trigger-pin-in" name="ultrasonic_trigger_pin_in" min="1" max="40" value="{{ config.ultrasonic_trigger_pin_in }}" placeholder="GPIO pin number for the ultrasonic sensor">
+                        </div>  
+
+                        <div class="form-group inline-form-group">
+                            <label for="ultrasonic-echo-pin-in">Ultrasonic Echo GPIO Pin:</label>
+                            <input type="number" id="ultrasonic-echo-pin-in" name="ultrasonic_echo_pin_in" min="1" max="40" value="{{ config.ultrasonic_echo_pin_in }}" placeholder="GPIO pin number for the ultrasonic sensor">
+                        </div> 
+                        
+                        <div class="form-group inline-form-group">
+                            <label for="soil-moisture-pin-in">Soil Moisture Sensor GPIO Pin:</label>
+                            <input type="number" id="soil-moisture-pin-in" name="soil_moisture_pin_in" min="1" max="40" value="{{ config.soil_moisture_pin_in }}" placeholder="GPIO pin number for the soil moisture sensor">
+                        </div>  
+                    </div>
+                </div>
+                
+                <div class="form-group dropdown-container">
+                    <label for="outputs-dropdown" class="dropdown-label">Outputs</label>
+                    <div class="dropdown-icon">▼</div>
+                    <div class="dropdown-content" id="outputs-content">
+                        <div class="form-group inline-form-group">
+                            <label for="light-pin">Light GPIO Pin:</label>
+                            <input type="number" id="light-pin" name="light_pin" min="1" max="40" value="{{ config.light_pin }}" placeholder="GPIO pin number for the light relay signal line">
+                        </div>
+                        
+                        <div class="form-group inline-form-group">
+                            <label for="water-pin">Water Pump GPIO Pin:</label>
+                            <input type="number" id="water-pin" name="water_pin" min="1" max="40" value="{{ config.water_pin }}" placeholder="GPIO pin number for the water pump relay signal line">
+                        </div>
+                        
+                        <div class="form-group inline-form-group">
+                            <label for="humidifier-pin">Humidifier GPIO Pin:</label>
+                            <input type="number" id="humidifier-pin" name="humidifier_pin" min="1" max="40" value="{{ config.humidifier_pin }}" placeholder="GPIO pin number for the humidifier relay signal line">
+                        </div>
+
+                        <div class="form-group inline-form-group">
+                            <label for="heater-pin">Heater GPIO Pin:</label>
+                            <input type="number" id="heater-pin" name="heater_pin" min="1" max="40" value="{{ config.heater_pin }}" placeholder="GPIO pin number for the heater relay signal line">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="config-section">
+                <h3>Environment Settings</h3>
+                <div class="form-group dropdown-container">
+                    <label for="inputs-dropdown" class="dropdown-label">Thresholds</label>
+                    <div class="dropdown-icon">▼</div>
+                    <div class="dropdown-content" id="inputs-content">
+                        <div class="form-group inline-form-group">
+                            <label for="light-threshold">Light on/off threshold value(?):</label>
+                            <input type="number" id="light-threshold" name="light_threshold" min="1" max="40" value="{{ config.light_threshold }}" placeholder="the threshold that determines if the light is on or off">
+                        </div>
+                        
+                        <div class="form-group inline-form-group">
+                            <label for="humidity-threshold-low">RH% Low Threshold (%):</label>
+                            <input type="number" id="humidity-threshold-low" name="humidity_threshold_low" min="0" max="100" value="{{ config.humidity_threshold_low }}" placeholder="the threshold that dictates atomizer activation">
+                        </div>
+
+                        <div class="form-group inline-form-group">
+                            <label for="humidity-threshold-high">RH High Threshold (%):</label>
+                            <input type="number" id="humidity-threshold-high" name="humidity_threshold_high" min="0" max="100" value="{{ config.humidity_threshold_high }}" placeholder="the threshold that dictates atomizer deactivation">
+                        </div>
+                        
+                        <div class="form-group inline-form-group">
+                            <label for="temperature-threshold-low">Temperature Low Threshold (°F):</label>
+                            <input type="number" id="temperature-threshold-low" name="temperature_threshold_low" min="32" max="100" value="{{ config.temperature_threshold_low }}" placeholder="the threshold that heater activation">
+                        </div>
+                        
+                        <div class="form-group inline-form-group">
+                            <label for="temperature-threshold-high">Temperature High Threshold (°F):</label>
+                            <input type="number" id="temperature-threshold-high" name="temperature_threshold_high" min="32" max="100" value="{{ config.temperature_threshold_high }}" placeholder="the threshold that heater deactivation">
+                        </div>  
+                        
+                        <div class="form-group inline-form-group">
+                            <label for="water-level-threshold-low">Low water level threshold(?):</label>
+                            <input type="number" id="water-level-threshold-low" name="water_level_threshold_low" min="1" max="40" value="{{ config.water_level_threshold_low }}" placeholder="the threshold that water pump activation">
+                        </div>
+
+                        <div class="form-group inline-form-group">
+                            <label for="dry-soil-threshold">Dry Soil Threshold(?):</label>
+                            <input type="number" id="dry-soil-threshold" name="dry_soil_threshold" min="1" max="40" value="{{ config.dry_soil_threshold }}" placeholder="the threshold that water pump activation">
+                        </div>
+
+                        <div class="form-group inline-form-group">
+                            <label for="wet-soil-threshold">Watered Soil Threshold(?):</label>
+                            <input type="number" id="watered-soil-threshold" name="watered_soil_threshold" min="1" max="40" value="{{ config.watered_soil_threshold }}" placeholder="the threshold that water pump activation">
+                        </div>  
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="button-container align-hw">
+            <button type="submit" class="btn btn-primary">
+                💾 Save Configuration
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+  {# Pull in our extracted JS #}
+  <script src="{{ url_for('static', filename='js/config.js') }}"></script>
+{% endblock %}
