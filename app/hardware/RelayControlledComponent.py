@@ -91,13 +91,19 @@ class RelayControlledComponent:
         """
         Turn the component on by setting the GPIO pin to HIGH.
         """
-        self.__set_state(GPIO.HIGH)
+        if not self.debug_mode:
+            self.__set_state(GPIO.HIGH)
+        else:
+            print(f"[{self.component_name}] Debug mode enabled, {self.component_name} set to HIGH")
 
     def turn_off(self):
         """
         Turn the component off by setting the GPIO pin to LOW.
         """
-        self.__set_state(GPIO.LOW)
+        if not self.debug_mode:
+            self.__set_state(GPIO.LOW)
+        else:
+            print(f"[{self.component_name}] Debug mode enabled, {self.component_name} set to LOW")
 
     def activate_for_duration(self, duration: int):
         """
