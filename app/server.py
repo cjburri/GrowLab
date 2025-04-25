@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, jsonify
 from app.models import db, Config
+from app.services.DeviceManager import DeviceManager
 
 bp = Blueprint('api', __name__)
 
@@ -66,13 +67,37 @@ def get_status():
         'water': False
     })
 
+@bp.route('/api/test', methods=['POST'])
+def test_device():
+    
+    device = request.json.get('device')
+    pin = request.json.get('pin')
+    if device == 'atomizer':
+        device_manager = DeviceManager(atomizer_pin=pin, debug_mode=True)
+    elif device == 'light':
+        device_manager = DeviceManager(light_pin=pin, debug_mode=True)
+    elif device == 'water':
+        device_manager = DeviceManager(water_pin=pin, debug_mode=True)
+    # elif device == 'humidifier':
+    #     device_manager = DeviceManager(humidifier_pin=pin, debug_mode=True)
+    # elif device == 'heater':
+    #     device_manager = DeviceManager(heater_pin=pin, debug_mode=True)
+    device_manager.test_device(device)
+    del device_manager
+    return jsonify({'status': 'success', 'device': device})
+
 @bp.route('/api/control', methods=['POST'])
 def control_device():
     # This is a placeholder - you'll need to implement actual device control
     data = request.json
     device = data.get('device')
     state = data.get('state', False)
-    
+
+    device_manager = DeviceManager()
+    if state:
+        device_manager.turn_on(device)
+    else:
+        device_manager.turn_off(device)
     # Here you would actually control the GPIO pins
     # For now, just return success
     return jsonify({'status': 'success', 'device': device, 'state': state})
