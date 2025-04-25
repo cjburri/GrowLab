@@ -7,9 +7,9 @@ import time
 
 class DeviceManager:
     def __init__(self, atomizer_pin=None, light_pin=None, water_pin=None, humidifier_pin=None, heater_pin=None, debug_mode: bool = False):
-        self.atomizer = Atomizer(atomizer_pin, debug_mode)
-        self.light = Light(light_pin, debug_mode)
-        self.water_pump = WaterPump(water_pin, debug_mode)
+        self.atomizer = Atomizer(signal_pin=atomizer_pin, debug_mode=debug_mode)
+        self.light = Light(signal_pin=light_pin, debug_mode=debug_mode)
+        self.water_pump = WaterPump(signal_pin=water_pin, debug_mode=debug_mode)
         # self.humidifier = Humidifier(humidifier_pin)
         # self.heater = Heater(heater_pin)
 
@@ -26,7 +26,7 @@ class DeviceManager:
             self.atomizer.turn_on()
         elif device == 'light':
             self.light.turn_on()
-        elif device == 'water_pump':
+        elif device == 'water':
             self.water_pump.turn_on()
 
     def turn_off(self, device):
@@ -34,7 +34,7 @@ class DeviceManager:
             self.atomizer.turn_off()
         elif device == 'light':
             self.light.turn_off()
-        elif device == 'water_pump':
+        elif device == 'water':
             self.water_pump.turn_off()
 
     def __del__(self):

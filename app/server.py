@@ -69,9 +69,9 @@ def get_status():
 
 @bp.route('/api/test', methods=['POST'])
 def test_device():
-    
     device = request.json.get('device')
     pin = request.json.get('pin')
+    print(f"Testing {device} with pin {pin}")
     if device == 'atomizer':
         device_manager = DeviceManager(atomizer_pin=pin, debug_mode=True)
     elif device == 'light':
