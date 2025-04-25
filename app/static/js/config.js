@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const label   = container.querySelector('.dropdown-label');
     const content = container.querySelector('.dropdown-content');
 
-    // start “open”
+    // start "open"
     content.classList.add('active');
     container.classList.add('active');
 
@@ -69,4 +69,57 @@ function getConfig() {
       }
     })
     .catch(console.error);
+}
+
+function testDevice(device) {
+    // Get the associated pin value based on the device
+    let pinInput;
+    switch(device) {
+        case 'light':
+            pinInput = document.getElementById('light-pin');
+            break;
+        case 'water':
+            pinInput = document.getElementById('water-pin');
+            break;
+        case 'humidifier':
+            pinInput = document.getElementById('humidifier-pin');
+            break;
+        case 'heater':
+            pinInput = document.getElementById('heater-pin');
+            break;
+        default:
+            console.error('Unknown device:', device);
+            return;
+    }
+    
+    const pin = pinInput.value;
+    
+    // Validate pin value
+    if (!pin || isNaN(pin) || pin <= 0) {
+        alert('Please enter a valid GPIO pin number first');
+        return;
+    }
+    
+    fetch('/api/test', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+            device: device,
+            pin: parseInt(pin)
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert(`Successfully tested ${device} on pin ${pin}`);
+        } else {
+            alert(`Error testing ${device} on pin ${pin}: ${data.message || ''}`);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to test device');
+    });
 }

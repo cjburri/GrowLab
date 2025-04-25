@@ -201,3 +201,23 @@ button[type="submit"]:hover {
   text-align: right;      /* right‐align the button */
   margin-bottom: 1rem;    /* space before the hardware section */
 }
+
+.test-btn {
+    margin-left: 10px;
+    padding: 5px 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+
+.test-btn:hover {
+    background-color: #45a049;
+}
+
+.inline-form-group {
+    display: flex;
+    align-items: center;
+}
