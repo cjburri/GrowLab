@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, jsonify
 from app.models import db, Config
 from app.services.DeviceManager import DeviceManager
+import time
 
 bp = Blueprint('api', __name__)
 
@@ -72,6 +73,7 @@ def test_device():
     
     device = request.json.get('device')
     pin = request.json.get('pin')
+    print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (Server) Testing {device} with pin {pin}")
     if device == 'atomizer':
         device_manager = DeviceManager(atomizer_pin=pin, debug_mode=True)
     elif device == 'light':

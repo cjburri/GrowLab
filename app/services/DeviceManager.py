@@ -14,12 +14,13 @@ class DeviceManager:
         # self.heater = Heater(heater_pin)
 
     def test_device(self, device):
+        print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (DeviceManager) Starting test sequence for {device}")
         for _ in range(3):
             self.turn_on(device)
             time.sleep(.5)
             self.turn_off(device)
             time.sleep(.5)
-        print(f"{device} test complete")
+        print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (DeviceManager) {device} test complete")
 
     def turn_on(self, device):
         if device == 'atomizer':
@@ -38,9 +39,9 @@ class DeviceManager:
             self.water_pump.turn_off()
 
     def __del__(self):
-        print("[DeviceManager] Turning off devices")
-        self.atomizer.turn_off()
-        self.light.turn_off()
-        self.water_pump.turn_off()
+        print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (DeviceManager) Turning off devices")
+        del self.atomizer
+        del self.light
+        del self.water_pump
         # self.heater.turn_off()
         # self.humidifier.turn_off()

@@ -25,6 +25,9 @@ class RelayControlledComponent:
         component_name (str): The name of the component for logging purposes.
     """
 
+    # Class variable to track if GPIO has been initialized
+    _gpio_initialized = False
+
     def __init__(self, signal_pin: int, component_name: str, debug_mode: bool = False):
         """
         Initialize the component with the specified GPIO pin.
@@ -37,7 +40,12 @@ class RelayControlledComponent:
         self.debug_mode = debug_mode
         self.component_name = component_name
         if self.debug_mode:
-            print(f"[{self.component_name}] Debug mode enabled, GPIO will be simulated")
+            print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - ({self.component_name}) Debug mode enabled, GPIO will be simulated")
+        else:
+            if not RelayControlledComponent._gpio_initialized:
+                GPIO.setmode(GPIO.BCM)
+                RelayControlledComponent._gpio_initialized = True
+                print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - ({self.component_name}) GPIO mode set to BCM")
         self.signal_pin = signal_pin                               # The GPIO pin number to use for controlling the component
         self.state = GPIO.LOW if not self.debug_mode else False    # Initialize component in OFF state
         self.runtime = 0                                           # The total runtime of the component in seconds
@@ -53,7 +61,7 @@ class RelayControlledComponent:
         if not self.debug_mode:
             GPIO.setup(self.signal_pin, GPIO.OUT)
             GPIO.output(self.signal_pin, self.state)
-        print(f"[{self.component_name}] Initialized on pin {self.signal_pin} with state {self.state}")
+        print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - ({self.component_name}) Initialized on pin {self.signal_pin} with state {self.state}")
 
     def __set_state(self, state: Union[Literal[GPIO.HIGH, GPIO.LOW], bool]):
         """
@@ -67,7 +75,7 @@ class RelayControlledComponent:
         self.state = state
         if not self.debug_mode:
             GPIO.output(self.signal_pin, state)
-        print(f"[{self.component_name}] Set state to {state}")
+        print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - ({self.component_name}) Set state to {state}")
 
     def get_status(self) -> Union[bool, Literal[GPIO.HIGH, GPIO.LOW]]:
         """
@@ -94,7 +102,7 @@ class RelayControlledComponent:
         if not self.debug_mode:
             self.__set_state(GPIO.HIGH)
         else:
-            print(f"[{self.component_name}] Debug mode enabled, {self.component_name} set to HIGH")
+            print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - ({self.component_name}) Debug mode enabled, {self.component_name} set to HIGH")
 
     def turn_off(self):
         """
@@ -103,7 +111,7 @@ class RelayControlledComponent:
         if not self.debug_mode:
             self.__set_state(GPIO.LOW)
         else:
-            print(f"[{self.component_name}] Debug mode enabled, {self.component_name} set to LOW")
+            print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - ({self.component_name}) Debug mode enabled, {self.component_name} set to LOW")
 
     def activate_for_duration(self, duration: int):
         """
@@ -112,12 +120,12 @@ class RelayControlledComponent:
         Args:
             duration (int): The duration to keep the component on in seconds.
         """
-        print(f"[{self.component_name}] Activating for {duration} seconds")
+        print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - ({self.component_name}) Activating for {duration} seconds")
         self.turn_on()
         time.sleep(duration)
         self.turn_off()
         self.runtime += duration
-        print(f"[{self.component_name}] Activation complete for {duration} seconds")
+        print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - ({self.component_name}) Activation complete for {duration} seconds")
 
     def pulse_activate(self, on_time: int, off_time: int, cycles: int):
         """
@@ -128,11 +136,11 @@ class RelayControlledComponent:
             off_time (int): The duration to keep the component off in seconds.
             cycles (int): The number of cycles to repeat.
         """
-        print(f"[{self.component_name}] Pulsing for {cycles} cycles")
+        print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - ({self.component_name}) Pulsing for {cycles} cycles")
         for _ in range(cycles):
             self.activate_for_duration(on_time)
             time.sleep(off_time)
-        print(f"[{self.component_name}] {cycles}x{on_time} pulse(s) complete")
+        print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - ({self.component_name}) {cycles}x{on_time} pulse(s) complete")
 
     def get_usage_stats(self) -> dict:
         """
@@ -144,4 +152,14 @@ class RelayControlledComponent:
         return {
             "runtime": self.runtime,
             "state": self.state,
-        } 
+        }
+    
+    def __del__(self):
+        """
+        Destructor to clean up GPIO resources.
+        """
+        if not self.debug_mode:
+            GPIO.cleanup()
+            print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - ({self.component_name}) GPIO resources cleaned up")
+        else:
+            print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - ({self.component_name}) Debug mode enabled, GPIO resources not cleaned up")

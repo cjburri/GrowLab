@@ -37,3 +37,9 @@ class WaterPump(RelayControlledComponent):
             cycles (int): The number of cycles to repeat.
         """
         self.pulse_activate(on_time, off_time, cycles)
+    
+    def __del__(self):
+        """
+        Destructor to clean up GPIO resources.
+        """
+        super().__del__()
