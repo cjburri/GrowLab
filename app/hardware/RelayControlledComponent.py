@@ -151,7 +151,13 @@ class RelayControlledComponent:
         Destructor to clean up GPIO resources.
         """
         if not self.debug_mode:
-            GPIO.cleanup()
-            print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - ({self.component_name}) GPIO resources cleaned up")
+            # Don't clean up GPIO here as it might be needed by other components
+            # Just set the pin to LOW
+            try:
+                GPIO.output(self.signal_pin, GPIO.LOW)
+                print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - ({self.component_name}) Set pin {self.signal_pin} to LOW")
+            except RuntimeError:
+                # GPIO might be cleaned up already
+                pass
         else:
             print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - ({self.component_name}) Debug mode enabled, GPIO resources not cleaned up")
