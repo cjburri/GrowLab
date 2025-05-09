@@ -25,9 +25,6 @@ class RelayControlledComponent:
         component_name (str): The name of the component for logging purposes.
     """
 
-    # Class variable to track if GPIO has been initialized
-    _gpio_initialized = False
-
     def __init__(self, signal_pin: int, component_name: str, debug_mode: bool = False):
         """
         Initialize the component with the specified GPIO pin.
@@ -41,11 +38,6 @@ class RelayControlledComponent:
         self.component_name = component_name
         if self.debug_mode:
             print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - ({self.component_name}) Debug mode enabled, GPIO will be simulated")
-        else:
-            if not RelayControlledComponent._gpio_initialized:
-                GPIO.setmode(GPIO.BCM)
-                RelayControlledComponent._gpio_initialized = True
-                print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - ({self.component_name}) GPIO mode set to BCM")
         self.signal_pin = signal_pin                               # The GPIO pin number to use for controlling the component
         self.state = GPIO.LOW if not self.debug_mode else False    # Initialize component in OFF state
         self.runtime = 0                                           # The total runtime of the component in seconds

@@ -2,9 +2,13 @@ from flask import Blueprint, render_template, request, jsonify
 from app.models import db, Config
 from app.services.DeviceManager import DeviceManager
 from app.config import DEBUG_MODE
+from app.hardware.gpio_manager import initialize_gpio, cleanup_gpio
 import time
 
 bp = Blueprint('api', __name__)
+
+# Initialize GPIO at module level
+initialize_gpio()
 
 @bp.route('/')
 def index():
@@ -101,4 +105,8 @@ def control_device():
     else:
         device_manager.turn_off(device)
     return jsonify({'status': 'success', 'device': device, 'state': state})
+
+def cleanup():
+    """Cleanup function to be called when the application is shutting down"""
+    cleanup_gpio()
 
