@@ -78,29 +78,32 @@ def get_status():
 
 @bp.route('/api/test', methods=['POST'])
 def test_device():
-    device = request.json.get('device')
-    pin = request.json.get('pin')
-    print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (Server) Testing {device} with pin {pin}")
-    if device == 'atomizer':
-        device_manager = DeviceManager(atomizer_pin=pin, debug_mode=DEBUG_MODE)
+    data = request.json
+    print(data)
+    device = data.get('device')
+    if device == 'ultrasonic_sensor':
+        trigger_pin = data.get('trigger_pin')
+        echo_pin = data.get('echo_pin')
+        device_manager = DeviceManager(ultrasonic_trigger_pin_in=trigger_pin, ultrasonic_echo_pin_in=echo_pin, debug_mode=DEBUG_MODE)
+        value = device_manager.test_device(device, io="input")
+        del device_manager
+        return jsonify({'status': 'success', 'device': device, 'value': value})
+    elif device == 'atomizer':
+        device_manager = DeviceManager(atomizer_pin=data.get('pin'), debug_mode=DEBUG_MODE)
     elif device == 'light':
-        device_manager = DeviceManager(light_pin=pin, debug_mode=DEBUG_MODE)
+        device_manager = DeviceManager(light_pin=data.get('pin'), debug_mode=DEBUG_MODE)
     elif device == 'water':
-        device_manager = DeviceManager(water_pin=pin, debug_mode=DEBUG_MODE)
+        device_manager = DeviceManager(water_pin=data.get('pin'), debug_mode=DEBUG_MODE)
     elif device == 'heater':
-        device_manager = DeviceManager(heater_pin=pin, debug_mode=DEBUG_MODE)
+        device_manager = DeviceManager(heater_pin=data.get('pin'), debug_mode=DEBUG_MODE)
     elif device == 'light_sensor':
-        device_manager = DeviceManager(light_pin_in=pin, debug_mode=DEBUG_MODE)
+        device_manager = DeviceManager(light_pin_in=data.get('pin'), debug_mode=DEBUG_MODE)
     elif device == 'temperature_sensor':
-        device_manager = DeviceManager(temperature_pin_in=pin, debug_mode=DEBUG_MODE)
+        device_manager = DeviceManager(temperature_pin_in=data.get('pin'), debug_mode=DEBUG_MODE)
     elif device == 'humidity_sensor':
-        device_manager = DeviceManager(humidity_pin_in=pin, debug_mode=DEBUG_MODE)
-    elif device == 'ultrasonic_trigger':
-        device_manager = DeviceManager(ultrasonic_trigger_pin_in=pin, debug_mode=DEBUG_MODE)
-    elif device == 'ultrasonic_echo':
-        device_manager = DeviceManager(ultrasonic_echo_pin_in=pin, debug_mode=DEBUG_MODE)
+        device_manager = DeviceManager(humidity_pin_in=data.get('pin'), debug_mode=DEBUG_MODE)
     elif device == 'soil_moisture_sensor':
-        device_manager = DeviceManager(soil_moisture_pin_in=pin, debug_mode=DEBUG_MODE)
+        device_manager = DeviceManager(soil_moisture_pin_in=data.get('pin'), debug_mode=DEBUG_MODE)
     
     if device in OUTPUT_DEVICES:
         device_manager.test_device(device, io="output")
