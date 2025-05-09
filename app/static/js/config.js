@@ -87,6 +87,9 @@ function testDevice(device) {
         case 'heater':
             pinInput = document.getElementById('heater-pin');
             break;
+        case 'temperature_sensor':
+            pinInput = document.getElementById('temperature-pin-in');
+            break;
         default:
             console.error('Unknown device:', device);
             return;
@@ -112,8 +115,13 @@ function testDevice(device) {
     })
     .then(response => response.json())
     .then(data => {
+        console.log(data);
         if (data.status === 'success') {
-            alert(`Successfully tested ${device} on pin ${pin}`);
+            if (data.value) {
+                alert(`${device} on pin ${pin} is reading ${data.value}`);
+            } else {
+                alert(`fired ${device} on pin ${pin} 3 times`);
+            }
         } else {
             alert(`Error testing ${device} on pin ${pin}: ${data.message || ''}`);
         }
