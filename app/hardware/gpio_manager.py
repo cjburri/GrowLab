@@ -1,7 +1,7 @@
-import RPi.GPIO as GPIO
 import time
 from app.config import DEBUG_MODE
-
+if not DEBUG_MODE:
+    import RPi.GPIO as GPIO
 def initialize_gpio():
     """
     Initialize the GPIO system. This should be called once at application startup.
