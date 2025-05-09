@@ -1,5 +1,6 @@
 from app.hardware.Sensor import Sensor
 import time
+import os
 
 class TemperatureSensor(Sensor):
     """
@@ -19,7 +20,7 @@ class TemperatureSensor(Sensor):
         print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (TemperatureSensor) Reading temperature from pin {self.signal_pin}")
         try:
             # Open the 1-wire device file
-            device_file = '/sys/bus/w1/devices/28-xxxxxxxxxxxx/w1_slave'
+            device_file = f'/sys/bus/w1/devices/{os.environ["1wire_sensor_id"]}/w1_slave'
             with open(device_file, 'r') as f:
                 lines = f.readlines()
             
