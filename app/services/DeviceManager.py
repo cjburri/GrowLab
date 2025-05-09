@@ -1,8 +1,7 @@
 from app.hardware.Atomizer import Atomizer
 from app.hardware.Light import Light
 from app.hardware.WaterPump import WaterPump
-# from app.hardware.Humidifier import Humidifier
-# from app.hardware.Heater import Heater
+from app.hardware.Heater import Heater
 import time
 
 class DeviceManager:
@@ -11,8 +10,8 @@ class DeviceManager:
         self.atomizer = Atomizer(atomizer_pin, debug_mode) if atomizer_pin is not None else None
         self.light = Light(light_pin, debug_mode) if light_pin is not None else None
         self.water_pump = WaterPump(water_pin, debug_mode) if water_pin is not None else None
+        self.heater = Heater(heater_pin, debug_mode) if heater_pin is not None else None
         # self.humidifier = Humidifier(humidifier_pin) if humidifier_pin is not None else None
-        # self.heater = Heater(heater_pin) if heater_pin is not None else None
 
     def test_device(self, device):
         print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (DeviceManager) Starting test sequence for {device}")
@@ -30,6 +29,8 @@ class DeviceManager:
             self.light.turn_on()
         elif device == 'water' and self.water_pump is not None:
             self.water_pump.turn_on()
+        elif device == 'heater' and self.heater is not None:
+            self.heater.turn_on()
 
     def turn_off(self, device):
         if device == 'atomizer' and self.atomizer is not None:
@@ -38,6 +39,8 @@ class DeviceManager:
             self.light.turn_off()
         elif device == 'water' and self.water_pump is not None:
             self.water_pump.turn_off()
+        elif device == 'heater' and self.heater is not None:
+            self.heater.turn_off()
 
     def __del__(self):
         print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (DeviceManager) Turning off devices")
@@ -47,7 +50,5 @@ class DeviceManager:
             del self.light
         if self.water_pump is not None:
             del self.water_pump
-        # if self.heater is not None:
-        #     self.heater.turn_off()
-        # if self.humidifier is not None:
-        #     self.humidifier.turn_off()
+        if self.heater is not None:
+            del self.heater

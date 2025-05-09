@@ -75,7 +75,6 @@ def get_status():
 
 @bp.route('/api/test', methods=['POST'])
 def test_device():
-    
     device = request.json.get('device')
     pin = request.json.get('pin')
     print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (Server) Testing {device} with pin {pin}")
@@ -85,10 +84,10 @@ def test_device():
         device_manager = DeviceManager(light_pin=pin, debug_mode=DEBUG_MODE)
     elif device == 'water':
         device_manager = DeviceManager(water_pin=pin, debug_mode=DEBUG_MODE)
+    elif device == 'heater':
+        device_manager = DeviceManager(heater_pin=pin, debug_mode=DEBUG_MODE)
     # elif device == 'humidifier':
     #     device_manager = DeviceManager(humidifier_pin=pin, debug_mode=DEBUG_MODE)
-    # elif device == 'heater':
-    #     device_manager = DeviceManager(heater_pin=pin, debug_mode=DEBUG_MODE)
     device_manager.test_device(device)
     del device_manager
     return jsonify({'status': 'success', 'device': device})

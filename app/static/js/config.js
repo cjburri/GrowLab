@@ -81,8 +81,8 @@ function testDevice(device) {
         case 'water':
             pinInput = document.getElementById('water-pin');
             break;
-        case 'humidifier':
-            pinInput = document.getElementById('humidifier-pin');
+        case 'atomizer':
+            pinInput = document.getElementById('atomizer-pin');
             break;
         case 'heater':
             pinInput = document.getElementById('heater-pin');
