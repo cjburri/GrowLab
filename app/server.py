@@ -5,6 +5,9 @@ from app.config import DEBUG_MODE
 from app.hardware.gpio_manager import initialize_gpio, cleanup_gpio
 import time
 
+OUTPUT_DEVICES = ['atomizer', 'light', 'water', 'heater']
+INPUT_DEVICES = ['temperature_sensor', 'humidity_sensor', 'ultrasonic_trigger', 'ultrasonic_echo', 'soil_moisture_sensor']
+
 bp = Blueprint('api', __name__)
 
 # Initialize GPIO at module level
@@ -86,11 +89,28 @@ def test_device():
         device_manager = DeviceManager(water_pin=pin, debug_mode=DEBUG_MODE)
     elif device == 'heater':
         device_manager = DeviceManager(heater_pin=pin, debug_mode=DEBUG_MODE)
-    # elif device == 'humidifier':
-    #     device_manager = DeviceManager(humidifier_pin=pin, debug_mode=DEBUG_MODE)
-    device_manager.test_device(device)
+    elif device == 'light_sensor':
+        device_manager = DeviceManager(light_pin_in=pin, debug_mode=DEBUG_MODE)
+    elif device == 'temperature_sensor':
+        device_manager = DeviceManager(temperature_pin_in=pin, debug_mode=DEBUG_MODE)
+    elif device == 'humidity_sensor':
+        device_manager = DeviceManager(humidity_pin_in=pin, debug_mode=DEBUG_MODE)
+    elif device == 'ultrasonic_trigger':
+        device_manager = DeviceManager(ultrasonic_trigger_pin_in=pin, debug_mode=DEBUG_MODE)
+    elif device == 'ultrasonic_echo':
+        device_manager = DeviceManager(ultrasonic_echo_pin_in=pin, debug_mode=DEBUG_MODE)
+    elif device == 'soil_moisture_sensor':
+        device_manager = DeviceManager(soil_moisture_pin_in=pin, debug_mode=DEBUG_MODE)
+    
+    if device in OUTPUT_DEVICES:
+        device_manager.test_device(device, io="output")
+        return jsonify({'status': 'success', 'device': device})
+    elif device in INPUT_DEVICES:
+        value = device_manager.test_device(device, io="input")
+        return jsonify({'status': 'success', 'device': device, 'value': value})
+
     del device_manager
-    return jsonify({'status': 'success', 'device': device})
+    
 
 @bp.route('/api/control', methods=['POST'])
 def control_device():

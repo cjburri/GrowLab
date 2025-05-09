@@ -106,42 +106,62 @@
 #inputs-content .inline-form-group {
   display: flex !important;
   width: 100% !important;
-  justify-content: space-between !important; /* Push items to the edges */
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin-bottom: 10px;
 }
 
-#inputs-content .inline-form-group label {
-  flex: 0 0 auto !important; /* Only take as much space as needed */
-  text-align: left !important;
-  padding-left: 0 !important;
-  margin-right: 10px !important;
-  margin-top: 8px !important;
+#inputs-content .inline-form-group label,
+#outputs-content .inline-form-group label {
+    width: 220px !important;
+    min-width: 220px !important;
+    max-width: 220px !important;
+    flex: 0 0 220px !important;
+    text-align: right !important;
+    margin-right: 16px !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
 }
 
-#inputs-content .inline-form-group input {
-  flex: 0 0 55% !important;
-  width: 55% !important;
-  text-align: left !important; /* Left-align the text in inputs */
+#inputs-content .inline-form-group input[type="number"] {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  max-width: 400px;
+  margin-right: 0 !important;
+}
+
+#inputs-content .inline-form-group .test-btn {
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+  margin-left: 12px !important;
+  padding: 6px 16px;
 }
 
 /* Specific styling for outputs dropdown */
 #outputs-content .inline-form-group {
   display: flex !important;
   width: 100% !important;
-  justify-content: space-between !important; /* Push items to the edges */
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin-bottom: 10px;
 }
 
-#outputs-content .inline-form-group label {
-  flex: 0 0 auto !important; /* Only take as much space as needed */
-  text-align: left !important;
-  padding-left: 0 !important;
-  margin-right: 10px !important;
-  margin-top: 8px !important;
+#outputs-content .inline-form-group input[type="number"] {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  max-width: 400px;
+  margin-right: 0 !important;
 }
 
-#outputs-content .inline-form-group input {
-  flex: 0 0 55% !important;
-  width: 55% !important;
-  text-align: left !important; /* Left-align the text in inputs */
+#outputs-content .inline-form-group .test-btn {
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+  margin-left: 12px !important;
+  padding: 6px 16px;
 }
 
 /* Hide the hint divs since we're using placeholders */
@@ -220,4 +240,33 @@ button[type="submit"]:hover {
 .inline-form-group {
     display: flex;
     align-items: center;
+}
+
+.config-form .inline-form-group {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important; /* slightly more space between input and button */
+    margin-bottom: 10px;
+    background: none !important;
+}
+
+.config-form .inline-form-group label {
+    min-width: 180px;
+    margin-right: 10px;
+    text-align: left;
+}
+
+.config-form .inline-form-group input[type="number"] {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    max-width: 300px;
+    margin-right: 0 !important;
+}
+
+.config-form .inline-form-group .test-btn {
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+    margin-left: 12px !important;
+    padding: 6px 16px;
 }
