@@ -18,18 +18,18 @@ class Config(db.Model):
     # Output pins
     light_pin = db.Column(db.Integer, default=1)
     water_pin = db.Column(db.Integer, default=1)
-    humidifier_pin = db.Column(db.Integer, default=1)
+    atomizer_pin = db.Column(db.Integer, default=1)
     heater_pin = db.Column(db.Integer, default=1)
     
     # Thresholds
-    light_threshold = db.Column(db.Integer, default=500)
+    light_threshold = db.Column(db.Integer, default=40)
     humidity_threshold_low = db.Column(db.Integer, default=40)
-    humidity_threshold_high = db.Column(db.Integer, default=60)
-    temperature_threshold_low = db.Column(db.Integer, default=65)
-    temperature_threshold_high = db.Column(db.Integer, default=80)
-    water_level_threshold_low = db.Column(db.Integer, default=10)
-    dry_soil_threshold = db.Column(db.Integer, default=700)
-    watered_soil_threshold = db.Column(db.Integer, default=300)
+    humidity_threshold_high = db.Column(db.Integer, default=40)
+    temperature_threshold_low = db.Column(db.Integer, default=40)
+    temperature_threshold_high = db.Column(db.Integer, default=40)
+    water_level_threshold_low = db.Column(db.Integer, default=40)
+    dry_soil_threshold = db.Column(db.Integer, default=40)
+    watered_soil_threshold = db.Column(db.Integer, default=40)
     
     # Timestamps
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -46,7 +46,7 @@ class Config(db.Model):
             'soil_moisture_pin_in': self.soil_moisture_pin_in,
             'light_pin': self.light_pin,
             'water_pin': self.water_pin,
-            'humidifier_pin': self.humidifier_pin,
+            'atomizer_pin': self.atomizer_pin,
             'heater_pin': self.heater_pin,
             'light_threshold': self.light_threshold,
             'humidity_threshold_low': self.humidity_threshold_low,
