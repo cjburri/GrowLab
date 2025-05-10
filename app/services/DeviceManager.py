@@ -1,9 +1,9 @@
-from app.hardware.Atomizer import Atomizer
-from app.hardware.Light import Light
-from app.hardware.WaterPump import WaterPump
-from app.hardware.Heater import Heater
-from app.hardware.TemperatureSensor import TemperatureSensor
-from app.hardware.UltrasonicSensor import UltrasonicSensor
+from app.hardware.output.Atomizer import Atomizer
+from app.hardware.output.Light import Light
+from app.hardware.output.WaterPump import WaterPump
+from app.hardware.output.Heater import Heater
+from app.hardware.input.TemperatureSensor import TemperatureSensor
+from app.hardware.input.UltrasonicSensor import UltrasonicSensor
 import time
 
 class DeviceManager:

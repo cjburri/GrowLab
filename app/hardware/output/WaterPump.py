@@ -1,4 +1,4 @@
-from app.hardware.RelayControlledComponent import RelayControlledComponent, GPIO
+from app.hardware.output.RelayControlledComponent import RelayControlledComponent, GPIO
 
 class WaterPump(RelayControlledComponent):
     """

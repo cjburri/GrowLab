@@ -1,6 +1,7 @@
-from app.hardware.Sensor import Sensor
+from app.hardware.input.Sensor import Sensor
 import time
 import os
+import random
 
 class TemperatureSensor(Sensor):
     """
@@ -16,7 +17,7 @@ class TemperatureSensor(Sensor):
         """
         if self.debug_mode:
             print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (TemperatureSensor) Debug mode: returning simulated temperature value.")
-            return 72.0  # Simulated temperature in Fahrenheit
+            return 72.0+round(random.random()*10, 1)  # Simulated temperature in Fahrenheit
         print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (TemperatureSensor) Reading temperature from pin {self.signal_pin}")
         try:
             # Open the 1-wire device file

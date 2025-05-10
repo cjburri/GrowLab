@@ -1,4 +1,4 @@
-from app.hardware.Sensor import Sensor
+from app.hardware.input.Sensor import Sensor
 import time
 
 try:

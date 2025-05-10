@@ -1,4 +1,4 @@
-from app.hardware.RelayControlledComponent import RelayControlledComponent
+from app.hardware.output.RelayControlledComponent import RelayControlledComponent
 import time
 
 class Atomizer(RelayControlledComponent):
