@@ -1,4 +1,4 @@
-from app.hardware.output.RelayControlledComponent import RelayControlledComponent
+from app.hardware.output.RelayControlledComponent import RelayControlledComponent, GPIO
 import time
 
 class Heater(RelayControlledComponent):
