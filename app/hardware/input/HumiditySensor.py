@@ -41,8 +41,9 @@ class HumiditySensor(Sensor):
         if not self.debug_mode:
             # Convert GPIO pin number to board pin
             print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (HumiditySensor) Converting GPIO pin {signal_pin} to board pin")
-            board_pin = pin_map.get(signal_pin, board.D4)  # Default to D4 if pin not found
-            self.dht = adafruit_dht.DHT11(board_pin)
+            self.board_pin = pin_map.get(signal_pin)  # Default to D4 if pin not found
+            if self.board_pin is None:
+                raise ValueError(f"Invalid GPIO pin number: {signal_pin}")
         print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (HumiditySensor) Initialized on pin {self.signal_pin}")
 
     def read(self):
@@ -55,13 +56,23 @@ class HumiditySensor(Sensor):
             return round(45.0 + random.random() * 20.0, 1)  # Simulated humidity between 45-65%
             
         print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (HumiditySensor) Reading humidity from pin {self.signal_pin}")
-        try:
-            # Read humidity from DHT11
-            humidity = self.dht.humidity
-            
-            print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (HumiditySensor) Humidity: {humidity:.1f}%")
-            return round(humidity, 1)
+        
+        # Try up to 3 times with a small delay between attempts
+        for attempt in range(3):
+            try:
+                # Create a new DHT instance for each read
+                dht = adafruit_dht.DHT11(self.board_pin, use_pulseio=False)
+                # Read humidity from DHT11
+                humidity = dht.humidity
                 
-        except Exception as e:
-            print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (HumiditySensor) Error: {str(e)}")
-            return None
+                print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (HumiditySensor) Humidity: {humidity:.1f}%")
+                return round(humidity, 1)
+                    
+            except Exception as e:
+                print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (HumiditySensor) Attempt {attempt + 1} failed: {str(e)}")
+                if attempt < 2:  # Don't sleep on the last attempt
+                    time.sleep(1)  # Wait 1 second before retrying
+                continue
+        
+        print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (HumiditySensor) All attempts failed")
+        return None
