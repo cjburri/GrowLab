@@ -43,6 +43,7 @@ class HumiditySensor(Sensor):
             print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (HumiditySensor) Converting GPIO pin {signal_pin} to board pin")
             self.board_pin = pin_map.get(signal_pin)  # Default to D4 if pin not found
             self.dht = adafruit_dht.DHT11(self.board_pin, use_pulseio=False)
+            self.dht.measure()
             if self.board_pin is None:
                 raise ValueError(f"Invalid GPIO pin number: {signal_pin}")
         print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (HumiditySensor) Initialized on pin {self.signal_pin}")
@@ -57,8 +58,8 @@ class HumiditySensor(Sensor):
             return round(45.0 + random.random() * 20.0, 1)  # Simulated humidity between 45-65%
         print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (HumiditySensor) Reading humidity from pin {self.signal_pin}")
         try:
-            self.dht.measure()
             humidity = self.dht.humidity
+            self.dht.measure()
             print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (HumiditySensor) Humidity: {humidity:.1f}%")
             return round(humidity, 1)
         except Exception as e:
