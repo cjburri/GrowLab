@@ -57,13 +57,13 @@ class HumiditySensor(Sensor):
             return round(45.0 + random.random() * 20.0, 1)  # Simulated humidity between 45-65%
         print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (HumiditySensor) Reading humidity from pin {self.signal_pin}")
         try:
-            self.dht = adafruit_dht.DHT11(self.board_pin, use_pulseio=False)
+            self.dht.measure()
             humidity = self.dht.humidity
             print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (HumiditySensor) Humidity: {humidity:.1f}%")
             return round(humidity, 1)
         except Exception as e:
             print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (HumiditySensor) trying again: {str(e)}")
-            time.sleep(5)  # Wait 1 second before retrying
+            time.sleep(2)  # Wait 2 second before retrying
             return self.read()
         
         # print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (HumiditySensor) All attempts failed")
