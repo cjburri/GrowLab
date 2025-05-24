@@ -1,11 +1,19 @@
 from app.hardware.input.Sensor import Sensor
 import time
 import random
-import board
-import busio
-import digitalio
-import adafruit_mcp3xxx.mcp3008 as MCP
-from adafruit_mcp3xxx.analog_in import AnalogIn
+try:
+    import board
+    import busio
+    import digitalio
+    import adafruit_mcp3xxx.mcp3008 as MCP
+    from adafruit_mcp3xxx.analog_in import AnalogIn
+except ImportError:
+    from unittest.mock import MagicMock
+    board = MagicMock()
+    busio = MagicMock()
+    digitalio = MagicMock()
+    MCP = MagicMock()
+    AnalogIn = MagicMock()
 
 class LightSensor(Sensor):
     """
@@ -28,9 +36,9 @@ class LightSensor(Sensor):
             # Initialize CS pin
             cs = digitalio.DigitalInOut(board.D5)  # Using GPIO5 as CS
             # Initialize the MCP3008
-            self.adc = MCP.MCP3008(spi, cs)
+            self.mcp = MCP.MCP3008(spi, cs)
             # Create an analog input channel
-            self.chan = AnalogIn(self.adc, adc_channel)
+            self.chan = AnalogIn(self.mcp, self.adc_channel)
         print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (LightSensor) Initialized on ADC channel {self.adc_channel}")
 
     def read(self):
