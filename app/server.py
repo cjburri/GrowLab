@@ -6,7 +6,7 @@ from app.hardware.gpio_manager import initialize_gpio, cleanup_gpio
 import time
 
 OUTPUT_DEVICES = ['atomizer', 'light', 'water', 'heater']
-INPUT_DEVICES = ['temperature_sensor', 'humidity_sensor', 'ultrasonic_trigger', 'ultrasonic_echo', 'soil_moisture_sensor']
+INPUT_DEVICES = ['temperature_sensor', 'humidity_sensor', 'ultrasonic_trigger', 'ultrasonic_echo', 'soil_moisture_sensor', 'light_sensor']
 
 bp = Blueprint('api', __name__)
 

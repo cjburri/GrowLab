@@ -5,6 +5,7 @@ from app.hardware.output.Heater import Heater
 from app.hardware.input.TemperatureSensor import TemperatureSensor
 from app.hardware.input.HumiditySensor import HumiditySensor
 from app.hardware.input.UltrasonicSensor import UltrasonicSensor
+from app.hardware.input.LightSensor import LightSensor
 import time
 
 class DeviceManager:
@@ -27,7 +28,7 @@ class DeviceManager:
         self.light = Light(light_pin, debug_mode) if light_pin is not None else None
         self.water_pump = WaterPump(water_pin, debug_mode) if water_pin is not None else None
         self.heater = Heater(heater_pin, debug_mode) if heater_pin is not None else None
-        # self.light_sensor = LightSensor(light_pin_in, debug_mode) if light_pin_in is not None else None
+        self.light_sensor = LightSensor(light_pin_in, debug_mode) if light_pin_in is not None else None
         self.temperature_sensor = TemperatureSensor(temperature_pin_in, debug_mode) if temperature_pin_in is not None else None
         self.humidity_sensor = HumiditySensor(humidity_pin_in, debug_mode) if humidity_pin_in is not None else None
         self.ultrasonic_sensor = UltrasonicSensor(ultrasonic_trigger_pin_in, ultrasonic_echo_pin_in, debug_mode) if (ultrasonic_trigger_pin_in is not None and ultrasonic_echo_pin_in is not None) else None
@@ -68,7 +69,9 @@ class DeviceManager:
             self.heater.turn_off()
         
     def sense(self, device):
-        if device == 'temperature_sensor' and self.temperature_sensor is not None:
+        if device == 'light_sensor' and self.light_sensor is not None:
+            return self.light_sensor.read()
+        elif device == 'temperature_sensor' and self.temperature_sensor is not None:
             return self.temperature_sensor.read()
         elif device == 'ultrasonic_sensor' and self.ultrasonic_sensor is not None:
             return self.ultrasonic_sensor.read()
