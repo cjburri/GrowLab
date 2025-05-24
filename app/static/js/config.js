@@ -152,7 +152,7 @@ function testUltrasonicSensor() {
 function testSinglePinDevice(device, inputId) {
     const pinInput = document.getElementById(inputId);
     const pin = pinInput.value;
-    if (!pin || isNaN(pin) || pin <= 0) {
+    if (!pin || isNaN(pin) || pin < 0 || pin > 40) {
         alert('Please enter a valid GPIO pin number first');
         return;
     }

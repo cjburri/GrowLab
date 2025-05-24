@@ -21,8 +21,8 @@
                     <div class="dropdown-icon">▼</div>
                     <div class="dropdown-content" id="inputs-content">
                         <div class="form-group inline-form-group">
-                            <label for="light-pin-in">Light Sensor GPIO Pin:</label>
-                            <input type="number" id="light-pin-in" name="light_pin_in" min="1" max="40" value="{{ config.light_pin_in }}" placeholder="GPIO pin number for the light sensor">
+                            <label for="light-pin-in">Light Sensor ADC Pin:</label>
+                            <input type="number" id="light-pin-in" name="light_pin_in" min="0" max="7" value="{{ config.light_pin_in }}" placeholder="ADC pin number for the light sensor">
                             <button type="button" class="test-btn" onclick="testDevice('light_sensor')">Test</button>
                         </div>
                         
@@ -51,8 +51,8 @@
                         </div> 
                         
                         <div class="form-group inline-form-group">
-                            <label for="soil-moisture-pin-in">Soil Moisture Sensor GPIO Pin:</label>
-                            <input type="number" id="soil-moisture-pin-in" name="soil_moisture_pin_in" min="1" max="40" value="{{ config.soil_moisture_pin_in }}" placeholder="GPIO pin number for the soil moisture sensor">
+                            <label for="soil-moisture-pin-in">Soil Moisture Sensor ADC Pin:</label>
+                            <input type="number" id="soil-moisture-pin-in" name="soil_moisture_pin_in" min="0" max="7" value="{{ config.soil_moisture_pin_in }}" placeholder="ADC pin number for the soil moisture sensor">
                             <button type="button" class="test-btn" onclick="testDevice('soil_moisture_sensor')">Test</button>
                         </div>  
                     </div>
