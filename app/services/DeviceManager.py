@@ -3,6 +3,7 @@ from app.hardware.output.Light import Light
 from app.hardware.output.WaterPump import WaterPump
 from app.hardware.output.Heater import Heater
 from app.hardware.input.TemperatureSensor import TemperatureSensor
+from app.hardware.input.HumiditySensor import HumiditySensor
 from app.hardware.input.UltrasonicSensor import UltrasonicSensor
 import time
 
@@ -28,7 +29,7 @@ class DeviceManager:
         self.heater = Heater(heater_pin, debug_mode) if heater_pin is not None else None
         # self.light_sensor = LightSensor(light_pin_in, debug_mode) if light_pin_in is not None else None
         self.temperature_sensor = TemperatureSensor(temperature_pin_in, debug_mode) if temperature_pin_in is not None else None
-        # self.humidity_sensor = HumiditySensor(humidity_pin_in, debug_mode) if humidity_pin_in is not None else None
+        self.humidity_sensor = HumiditySensor(humidity_pin_in, debug_mode) if humidity_pin_in is not None else None
         self.ultrasonic_sensor = UltrasonicSensor(ultrasonic_trigger_pin_in, ultrasonic_echo_pin_in, debug_mode) if (ultrasonic_trigger_pin_in is not None and ultrasonic_echo_pin_in is not None) else None
         # self.ultrasonic_echo = UltrasonicEcho(ultrasonic_echo_pin_in, debug_mode) if ultrasonic_echo_pin_in is not None else None
         # self.soil_moisture_sensor = SoilMoistureSensor(soil_moisture_pin_in, debug_mode) if soil_moisture_pin_in is not None else None
@@ -71,6 +72,9 @@ class DeviceManager:
             return self.temperature_sensor.read()
         elif device == 'ultrasonic_sensor' and self.ultrasonic_sensor is not None:
             return self.ultrasonic_sensor.read()
+        elif device == 'humidity_sensor' and self.humidity_sensor is not None:
+            return self.humidity_sensor.read()
+        
     def __del__(self):
         print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (DeviceManager) Turning off devices")
         if self.atomizer is not None:
