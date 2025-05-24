@@ -56,18 +56,18 @@ class LightSensor(Sensor):
             raw_value = self.chan.value
             
             # Convert to voltage (MCP3008 has 10-bit resolution)
-            voltage = (raw_value * 3.3) / 65535.0
+            voltage = self.chan.voltage
             
             # Convert voltage to light level (0-100%)
             # The photocell typically outputs:
-            # Dark = ~0V
-            # Bright = ~3.3V
-            light_level = (voltage / 3.3) * 100.0
+            # Bright = ~0V
+            # Dark = ~2.3V
+            light_level = 100-((voltage / 2.3) * 100.0)
             
             # Clamp the value between 0 and 100
             light_level = max(0.0, min(100.0, light_level))
             
-            print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (LightSensor) Raw value: {raw_value}, Voltage: {voltage:.2f}V, Light level: {light_level:.1f}%")
+            print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (LightSensor) Voltage: {voltage:.2f}V, Light level: {light_level:.1f}%")
             return round(light_level, 1)
                 
         except Exception as e:
