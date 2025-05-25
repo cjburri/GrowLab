@@ -57,19 +57,11 @@ class LightSensor(Sensor):
             for _ in range(10):
                 voltage = self.chan.voltage
                 voltages.append(voltage)
-                
+
             voltage = sum(voltages) / len(voltages)
-            # Convert voltage to light level (0-100%)
-            # The photocell typically outputs:
-            # Bright = ~0V
-            # Dark = ~2.3V
-            light_level = 100-((voltage / 2.3) * 100.0)
             
-            # Clamp the value between 0 and 100
-            light_level = max(0.0, min(100.0, light_level))
-            
-            print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (LightSensor) Voltage: {voltage:.2f}V, Light level: {light_level:.1f}%")
-            return round(light_level, 1)
+            print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (LightSensor) Voltage: {voltage:.2f}V")
+            return round(voltage, 1)
                 
         except Exception as e:
             print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (LightSensor) Error: {str(e)}")
