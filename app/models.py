@@ -3,6 +3,37 @@ from datetime import datetime
 
 db = SQLAlchemy()
 
+class Reading(db.Model):
+    """Reading data from the grow system."""
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+class LightReading(Reading):
+    """Light reading data from the grow system."""
+    id = db.Column(db.Integer, db.ForeignKey('reading.id'), primary_key=True)
+    light_level = db.Column(db.Float, nullable=False)
+
+class TemperatureReading(Reading):
+    """Temperature reading data from the grow system."""
+    id = db.Column(db.Integer, db.ForeignKey('reading.id'), primary_key=True)
+    temperature = db.Column(db.Float, nullable=False)
+    
+
+class HumidityReading(Reading):
+    """Humidity reading data from the grow system."""
+    id = db.Column(db.Integer, db.ForeignKey('reading.id'), primary_key=True)
+    humidity = db.Column(db.Float, nullable=False)
+
+class Water_Reading(Reading):
+    """Water reading data from the grow system."""
+    id = db.Column(db.Integer, db.ForeignKey('reading.id'), primary_key=True)
+    water_level = db.Column(db.Float, nullable=False)
+
+class Soil_Moisture_Reading(Reading):
+    """Soil moisture reading data from the grow system."""
+    id = db.Column(db.Integer, db.ForeignKey('reading.id'), primary_key=True)
+    soil_moisture = db.Column(db.Float, nullable=False)
+
 class Config(db.Model):
     """Configuration settings for the grow system."""
     id = db.Column(db.Integer, primary_key=True)
@@ -57,3 +88,16 @@ class Config(db.Model):
             'dry_soil_threshold': self.dry_soil_threshold,
             'watered_soil_threshold': self.watered_soil_threshold
         }
+
+class Log(db.Model):
+    """Log data from the grow system."""
+    id = db.Column(db.Integer, primary_key=True)
+    event_code = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Event(db.Model):
+    """Event data from the grow system."""
+    id = db.Column(db.Integer, primary_key=True)
+    event_string = db.Column(db.String(255), nullable=False)
+    
+
