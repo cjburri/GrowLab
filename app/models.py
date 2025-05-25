@@ -91,9 +91,8 @@ class Config(db.Model):
 
 class Log(db.Model):
     """Log data from the grow system."""
-    id = db.Column(db.Integer, primary_key=True)
     event_code = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow, primary_key=True)
 
 class Event(db.Model):
     """Event data from the grow system."""
