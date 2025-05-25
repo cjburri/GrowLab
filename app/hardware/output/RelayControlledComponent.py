@@ -8,6 +8,7 @@ except ImportError:
     GPIO.LOW = False
     GPIO.OUT = 'out'
 import time
+from app.models import db, Log
 from typing import Literal, Union
 
 class RelayControlledComponent:
@@ -93,6 +94,19 @@ class RelayControlledComponent:
         """
         if not self.debug_mode:
             self.__set_state(GPIO.HIGH)
+            if self.component_name == "Light":
+                code = 101
+            elif self.component_name == "Atomizer":
+                code = 201
+            elif self.component_name == "Fan":
+                code = 301
+            elif self.component_name == "Pump":
+                code = 401
+            elif self.component_name == "Heater":
+                code = 501
+            log = Log(timestamp=time.time(), code=code)
+            db.session.add(log)
+            db.session.commit()
         else:
             print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - ({self.component_name}) Debug mode enabled, {self.component_name} set to HIGH")
 
@@ -102,6 +116,19 @@ class RelayControlledComponent:
         """
         if not self.debug_mode:
             self.__set_state(GPIO.LOW)
+            if self.component_name == "Light":
+                code = 100
+            elif self.component_name == "Atomizer":
+                code = 200
+            elif self.component_name == "Fan":
+                code = 300
+            elif self.component_name == "Pump":
+                code = 400
+            elif self.component_name == "Heater":
+                code = 500
+            log = Log(timestamp=time.time(), code=code)
+            db.session.add(log)
+            db.session.commit()
         else:
             print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - ({self.component_name}) Debug mode enabled, {self.component_name} set to LOW")
 
