@@ -179,7 +179,11 @@ function sendTestRequest(body, device) {
         console.log(data);
         if (data.status === 'success') {
             if (INPUT_DEVICES.includes(device)) {
-                alert(`${device} is reading ${data.value}`);
+                if (device === 'light_sensor' || device === 'soil_moisture_sensor') {
+                    alert(`${device} is reading ${data.value}V`);
+                } else {
+                    alert(`${device} is reading ${data.value}`);
+                }
             } else {
                 alert(`fired ${device} 3 times`);
             }

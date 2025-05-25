@@ -56,7 +56,7 @@ class SoilMoistureSensor(Sensor):
             voltage = sum(voltages) / len(voltages)
             
             print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (SoilMoistureSensor) Voltage: {voltage:.2f}V")
-            return round(voltage, 1)
+            return round(voltage, 2)
                 
         except Exception as e:
             print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (SoilMoistureSensor) Error: {str(e)}")
