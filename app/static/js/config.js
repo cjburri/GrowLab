@@ -1,3 +1,6 @@
+const OUTPUT_DEVICES = ['atomizer', 'light', 'water', 'heater']
+const INPUT_DEVICES = ['temperature_sensor', 'humidity_sensor', 'ultrasonic_trigger', 'ultrasonic_echo', 'soil_moisture_sensor', 'light_sensor']
+
 document.addEventListener('DOMContentLoaded', () => {
   //
   // 2) Hook up your form-submit handler
@@ -72,50 +75,120 @@ function getConfig() {
 }
 
 function testDevice(device) {
-    // Get the associated pin value based on the device
-    let pinInput;
     switch(device) {
         case 'light':
-            pinInput = document.getElementById('light-pin');
+            testLight();
             break;
         case 'water':
-            pinInput = document.getElementById('water-pin');
+            testWater();
             break;
-        case 'humidifier':
-            pinInput = document.getElementById('humidifier-pin');
+        case 'atomizer':
+            testAtomizer();
             break;
         case 'heater':
-            pinInput = document.getElementById('heater-pin');
+            testHeater();
+            break;
+        case 'light_sensor':
+            testLightSensor();
+            break;
+        case 'humidity_sensor':
+            testHumiditySensor();
+            break;
+        case 'temperature_sensor':
+            testTemperatureSensor();
+            break;
+        case 'soil_moisture_sensor':
+            testSoilMoistureSensor();
+            break;
+        case 'ultrasonic_sensor':
+            testUltrasonicSensor();
             break;
         default:
             console.error('Unknown device:', device);
             return;
     }
-    
+}
+
+function testLight() {
+    testSinglePinDevice('light', 'light-pin');
+}
+function testWater() {
+    testSinglePinDevice('water', 'water-pin');
+}
+function testAtomizer() {
+    testSinglePinDevice('atomizer', 'atomizer-pin');
+}
+function testHeater() {
+    testSinglePinDevice('heater', 'heater-pin');
+}
+function testLightSensor() {
+    testSinglePinDevice('light_sensor', 'light-pin-in');
+}
+function testHumiditySensor() {
+    testSinglePinDevice('humidity_sensor', 'humidity-pin-in');
+}
+function testTemperatureSensor() {
+    testSinglePinDevice('temperature_sensor', 'temperature-pin-in');
+}
+function testSoilMoistureSensor() {
+    testSinglePinDevice('soil_moisture_sensor', 'soil-moisture-pin-in');
+}
+
+function testUltrasonicSensor() {
+    const triggerInput = document.getElementById('ultrasonic-trigger-pin-in');
+    const echoInput = document.getElementById('ultrasonic-echo-pin-in');
+    const triggerPin = triggerInput.value;
+    const echoPin = echoInput.value;
+    if (!triggerPin || isNaN(triggerPin) || triggerPin <= 0 ||
+        !echoPin || isNaN(echoPin) || echoPin <= 0) {
+        alert('Please enter valid GPIO pin numbers for both trigger and echo');
+        return;
+    }
+    const body = {
+        device: 'ultrasonic_sensor',
+        trigger_pin: parseInt(triggerPin),
+        echo_pin: parseInt(echoPin)
+    };
+    sendTestRequest(body, 'ultrasonic_sensor');
+}
+
+function testSinglePinDevice(device, inputId) {
+    const pinInput = document.getElementById(inputId);
     const pin = pinInput.value;
-    
-    // Validate pin value
-    if (!pin || isNaN(pin) || pin <= 0) {
+    if (!pin || isNaN(pin) || pin < 0 || pin > 40) {
         alert('Please enter a valid GPIO pin number first');
         return;
     }
-    
+    const body = {
+        device: device,
+        pin: parseInt(pin)
+    };
+    sendTestRequest(body, device);
+}
+
+function sendTestRequest(body, device) {
     fetch('/api/test', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-            device: device,
-            pin: parseInt(pin)
-        })
+        body: JSON.stringify(body)
     })
     .then(response => response.json())
     .then(data => {
+        console.log(data);
         if (data.status === 'success') {
-            alert(`Successfully tested ${device} on pin ${pin}`);
+            if (INPUT_DEVICES.includes(device)) {
+                if (device === 'light_sensor' || device === 'soil_moisture_sensor') {
+                    alert(`${device} is reading ${data.value}V`);
+                } else {
+                    alert(`${device} is reading ${data.value}`);
+                }
+            } else {
+                alert(`fired ${device} 3 times`);
+            }
         } else {
-            alert(`Error testing ${device} on pin ${pin}: ${data.message || ''}`);
+            alert(`Error testing ${device}: ${data.message || ''}`);
         }
     })
     .catch(error => {

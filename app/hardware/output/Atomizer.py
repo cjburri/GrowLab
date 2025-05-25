@@ -1,4 +1,4 @@
-from app.hardware.RelayControlledComponent import RelayControlledComponent, GPIO
+from app.hardware.output.RelayControlledComponent import RelayControlledComponent, GPIO
 import time
 
 class Atomizer(RelayControlledComponent):
@@ -28,3 +28,9 @@ class Atomizer(RelayControlledComponent):
             duration (int): The duration to run the atomizer in seconds.
         """
         self.activate_for_duration(duration)
+
+    def __del__(self):
+        """
+        Destructor to clean up GPIO resources.
+        """
+        super().__del__()

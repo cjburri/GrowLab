@@ -38,9 +38,6 @@ class RelayControlledComponent:
         self.component_name = component_name
         if self.debug_mode:
             print(f"[{self.component_name}] Debug mode enabled, GPIO will be simulated")
-        else:
-            GPIO.setmode(GPIO.BCM)
-            print(f"[{self.component_name}] Debug mode disabled, GPIO mode set to BCM")
         self.signal_pin = signal_pin                               # The GPIO pin number to use for controlling the component
         self.state = GPIO.LOW if not self.debug_mode else False    # Initialize component in OFF state
         self.runtime = 0                                           # The total runtime of the component in seconds
@@ -54,7 +51,6 @@ class RelayControlledComponent:
         as an output and set its initial state to LOW (off).
         """
         if not self.debug_mode:
-            GPIO.setmode(GPIO.BCM)
             GPIO.setup(self.signal_pin, GPIO.OUT)
             GPIO.output(self.signal_pin, self.state)
         print(f"[{self.component_name}] Initialized on pin {self.signal_pin} with state {self.state}")

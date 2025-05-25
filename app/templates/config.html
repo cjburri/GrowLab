@@ -21,33 +21,39 @@
                     <div class="dropdown-icon">▼</div>
                     <div class="dropdown-content" id="inputs-content">
                         <div class="form-group inline-form-group">
-                            <label for="light-pin-in">Light Sensor GPIO Pin:</label>
-                            <input type="number" id="light-pin-in" name="light_pin_in" min="1" max="40" value="{{ config.light_pin_in }}" placeholder="GPIO pin number for the light sensor">
+                            <label for="light-pin-in">Light Sensor ADC Pin:</label>
+                            <input type="number" id="light-pin-in" name="light_pin_in" min="0" max="7" value="{{ config.light_pin_in }}" placeholder="ADC pin number for the light sensor">
+                            <button type="button" class="test-btn" onclick="testDevice('light_sensor')">Test</button>
                         </div>
                         
                         <div class="form-group inline-form-group">
                             <label for="humidity-pin-in">Humidity Sensor GPIO Pin:</label>
                             <input type="number" id="humidity-pin-in" name="humidity_pin_in" min="1" max="40" value="{{ config.humidity_pin_in }}" placeholder="GPIO pin number for the humidity sensor">
+                            <button type="button" class="test-btn" onclick="testDevice('humidity_sensor')">Test</button>
                         </div>
                         
                         <div class="form-group inline-form-group">
                             <label for="temperature-pin-in">Temperature Sensor GPIO Pin:</label>
                             <input type="number" id="temperature-pin-in" name="temperature_pin_in" min="1" max="40" value="{{ config.temperature_pin_in }}" placeholder="GPIO pin number for the temperature sensor">
+                            <button type="button" class="test-btn" onclick="testDevice('temperature_sensor')">Test</button>
                         </div>
                         
                         <div class="form-group inline-form-group">
                             <label for="ultrasonic-trigger-pin-in">Ultrasonic Trigger GPIO Pin:</label>
                             <input type="number" id="ultrasonic-trigger-pin-in" name="ultrasonic_trigger_pin_in" min="1" max="40" value="{{ config.ultrasonic_trigger_pin_in }}" placeholder="GPIO pin number for the ultrasonic sensor">
+                            <button type="button" class="test-btn" onclick="testDevice('ultrasonic_sensor')">Test</button>
                         </div>  
 
                         <div class="form-group inline-form-group">
                             <label for="ultrasonic-echo-pin-in">Ultrasonic Echo GPIO Pin:</label>
                             <input type="number" id="ultrasonic-echo-pin-in" name="ultrasonic_echo_pin_in" min="1" max="40" value="{{ config.ultrasonic_echo_pin_in }}" placeholder="GPIO pin number for the ultrasonic sensor">
+                            <button type="button" class="test-btn" onclick="testDevice('ultrasonic_sensor')">Test</button>
                         </div> 
                         
                         <div class="form-group inline-form-group">
-                            <label for="soil-moisture-pin-in">Soil Moisture Sensor GPIO Pin:</label>
-                            <input type="number" id="soil-moisture-pin-in" name="soil_moisture_pin_in" min="1" max="40" value="{{ config.soil_moisture_pin_in }}" placeholder="GPIO pin number for the soil moisture sensor">
+                            <label for="soil-moisture-pin-in">Soil Moisture Sensor ADC Pin:</label>
+                            <input type="number" id="soil-moisture-pin-in" name="soil_moisture_pin_in" min="0" max="7" value="{{ config.soil_moisture_pin_in }}" placeholder="ADC pin number for the soil moisture sensor">
+                            <button type="button" class="test-btn" onclick="testDevice('soil_moisture_sensor')">Test</button>
                         </div>  
                     </div>
                 </div>
@@ -69,9 +75,9 @@
                         </div>
                         
                         <div class="form-group inline-form-group">
-                            <label for="humidifier-pin">Humidifier GPIO Pin:</label>
-                            <input type="number" id="humidifier-pin" name="humidifier_pin" min="1" max="40" value="{{ config.humidifier_pin }}" placeholder="GPIO pin number for the humidifier relay signal line">
-                            <button type="button" class="test-btn" onclick="testDevice('humidifier')">Test</button>
+                            <label for="atomizer-pin">Atomizer GPIO Pin:</label>
+                            <input type="number" id="atomizer-pin" name="atomizer_pin" min="1" max="40" value="{{ config.atomizer_pin }}" placeholder="GPIO pin number for the atomizer relay signal line">
+                            <button type="button" class="test-btn" onclick="testDevice('atomizer')">Test</button>
                         </div>
 
                         <div class="form-group inline-form-group">

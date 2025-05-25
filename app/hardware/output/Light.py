@@ -1,4 +1,4 @@
-from app.hardware.RelayControlledComponent import RelayControlledComponent, GPIO
+from app.hardware.output.RelayControlledComponent import RelayControlledComponent, GPIO
 
 class Light(RelayControlledComponent):
     """
@@ -26,3 +26,10 @@ class Light(RelayControlledComponent):
             duration (int): The duration to keep the light on in seconds.
         """
         self.activate_for_duration(duration)
+    
+    def __del__(self):
+        """
+        Destructor to clean up GPIO resources.
+        """
+        super().__del__()
+

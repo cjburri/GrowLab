@@ -1,4 +1,13 @@
 app/__pycache__
 app/hardware/__pycache__
 app/services/__pycache__
+app/hardware/input/__pycache__
+app/hardware/output/__pycache__ 
 app/growlab.db
+venv/
+.env
+.coverage
+tests/__pycache__
+tests/hardware/__pycache__
+tests/hardware/input/__pycache__
+tests/hardware/output/__pycache__

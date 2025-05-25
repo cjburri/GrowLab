@@ -1,8 +1,17 @@
 from flask import Blueprint, render_template, request, jsonify
 from app.models import db, Config
 from app.services.DeviceManager import DeviceManager
+from app.config import DEBUG_MODE
+from app.hardware.gpio_manager import initialize_gpio, cleanup_gpio
+import time
+
+OUTPUT_DEVICES = ['atomizer', 'light', 'water', 'heater']
+INPUT_DEVICES = ['temperature_sensor', 'humidity_sensor', 'ultrasonic_trigger', 'ultrasonic_echo', 'soil_moisture_sensor', 'light_sensor']
 
 bp = Blueprint('api', __name__)
+
+# Initialize GPIO at module level
+initialize_gpio()
 
 @bp.route('/')
 def index():
@@ -69,36 +78,57 @@ def get_status():
 
 @bp.route('/api/test', methods=['POST'])
 def test_device():
-    device = request.json.get('device')
-    pin = request.json.get('pin')
-    print(f"Testing {device} with pin {pin}")
-    if device == 'atomizer':
-        device_manager = DeviceManager(atomizer_pin=pin, debug_mode=True)
+    data = request.json
+    print(data)
+    device = data.get('device')
+    if device == 'ultrasonic_sensor':
+        trigger_pin = data.get('trigger_pin')
+        echo_pin = data.get('echo_pin')
+        device_manager = DeviceManager(ultrasonic_trigger_pin_in=trigger_pin, ultrasonic_echo_pin_in=echo_pin, debug_mode=DEBUG_MODE)
+        value = device_manager.test_device(device, io="input")
+        del device_manager
+        return jsonify({'status': 'success', 'device': device, 'value': value})
+    elif device == 'atomizer':
+        device_manager = DeviceManager(atomizer_pin=data.get('pin'), debug_mode=DEBUG_MODE)
     elif device == 'light':
-        device_manager = DeviceManager(light_pin=pin, debug_mode=True)
+        device_manager = DeviceManager(light_pin=data.get('pin'), debug_mode=DEBUG_MODE)
     elif device == 'water':
-        device_manager = DeviceManager(water_pin=pin, debug_mode=True)
-    # elif device == 'humidifier':
-    #     device_manager = DeviceManager(humidifier_pin=pin, debug_mode=True)
-    # elif device == 'heater':
-    #     device_manager = DeviceManager(heater_pin=pin, debug_mode=True)
-    device_manager.test_device(device)
+        device_manager = DeviceManager(water_pin=data.get('pin'), debug_mode=DEBUG_MODE)
+    elif device == 'heater':
+        device_manager = DeviceManager(heater_pin=data.get('pin'), debug_mode=DEBUG_MODE)
+    elif device == 'light_sensor':
+        device_manager = DeviceManager(light_pin_in=data.get('pin'), debug_mode=DEBUG_MODE)
+    elif device == 'temperature_sensor':
+        device_manager = DeviceManager(temperature_pin_in=data.get('pin'), debug_mode=DEBUG_MODE)
+    elif device == 'humidity_sensor':
+        device_manager = DeviceManager(humidity_pin_in=data.get('pin'), debug_mode=DEBUG_MODE)
+    elif device == 'soil_moisture_sensor':
+        device_manager = DeviceManager(soil_moisture_pin_in=data.get('pin'), debug_mode=DEBUG_MODE)
+    
+    if device in OUTPUT_DEVICES:
+        device_manager.test_device(device, io="output")
+        return jsonify({'status': 'success', 'device': device})
+    elif device in INPUT_DEVICES:
+        value = device_manager.test_device(device, io="input")
+        return jsonify({'status': 'success', 'device': device, 'value': value})
+
     del device_manager
-    return jsonify({'status': 'success', 'device': device})
+    
 
 @bp.route('/api/control', methods=['POST'])
 def control_device():
-    # This is a placeholder - you'll need to implement actual device control
     data = request.json
     device = data.get('device')
     state = data.get('state', False)
 
-    device_manager = DeviceManager()
+    device_manager = DeviceManager(debug_mode=DEBUG_MODE)
     if state:
         device_manager.turn_on(device)
     else:
         device_manager.turn_off(device)
-    # Here you would actually control the GPIO pins
-    # For now, just return success
     return jsonify({'status': 'success', 'device': device, 'state': state})
+
+def cleanup():
+    """Cleanup function to be called when the application is shutting down"""
+    cleanup_gpio()
 
