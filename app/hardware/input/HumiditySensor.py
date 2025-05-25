@@ -1,28 +1,31 @@
 from app.hardware.input.Sensor import Sensor
 import time
 import random
-import board
-import adafruit_dht
+try:
+    import board
+    import adafruit_dht
 
-pin_map = {
-    4: board.D4,
-    17: board.D17,
-    18: board.D18,
-    27: board.D27,
-    22: board.D22,
-    23: board.D23,
-    24: board.D24,
-    25: board.D25,
-    5: board.D5,
-    6: board.D6,
-    13: board.D13,
-    19: board.D19,
-    26: board.D26,
-    12: board.D12,
-    16: board.D16,
-    20: board.D20,
-    21: board.D21
-}
+    pin_map = {
+        4: board.D4,
+        17: board.D17,
+        18: board.D18,
+        27: board.D27,
+        22: board.D22,
+        23: board.D23,
+        24: board.D24,
+        25: board.D25,
+        5: board.D5,
+        6: board.D6,
+        13: board.D13,
+        19: board.D19,
+        26: board.D26,
+        12: board.D12,
+        16: board.D16,
+        20: board.D20,
+        21: board.D21
+    }
+except ImportError:
+    print("Error: Could not import board or adafruit_dht")
 
 class HumiditySensor(Sensor):
     """

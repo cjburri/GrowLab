@@ -1,3 +1,6 @@
+const OUTPUT_DEVICES = ['atomizer', 'light', 'water', 'heater']
+const INPUT_DEVICES = ['temperature_sensor', 'humidity_sensor', 'ultrasonic_trigger', 'ultrasonic_echo', 'soil_moisture_sensor', 'light_sensor']
+
 document.addEventListener('DOMContentLoaded', () => {
   //
   // 2) Hook up your form-submit handler
@@ -175,7 +178,7 @@ function sendTestRequest(body, device) {
     .then(data => {
         console.log(data);
         if (data.status === 'success') {
-            if (data.value) {
+            if (INPUT_DEVICES.includes(device)) {
                 alert(`${device} is reading ${data.value}`);
             } else {
                 alert(`fired ${device} 3 times`);
