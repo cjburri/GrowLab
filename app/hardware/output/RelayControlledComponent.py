@@ -126,7 +126,7 @@ class RelayControlledComponent:
             code = 200
         elif self.component_name == "Fan":
             code = 300
-        elif self.component_name == "Pump":
+        elif self.component_name == "WaterPump":
             code = 400
         elif self.component_name == "Heater":
             code = 500
