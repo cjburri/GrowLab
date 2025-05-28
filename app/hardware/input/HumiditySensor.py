@@ -24,8 +24,10 @@ try:
         20: board.D20,
         21: board.D21
     }
-except ImportError:
-    print("Error: Could not import board or adafruit_dht")
+except ImportError as e:
+    print(f"Error: Could not import board or adafruit_dht: {e}")
+except NotImplementedError as e:
+    print(f"Error: Could not import board or adafruit_dht: {e}")
 
 class HumiditySensor(Sensor):
     """

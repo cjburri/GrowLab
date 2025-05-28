@@ -79,6 +79,9 @@ class DeviceManager:
             return self.humidity_sensor.read()
         elif device == 'soil_moisture_sensor' and self.soil_moisture_sensor is not None:
             return self.soil_moisture_sensor.read()
+        else:
+            print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (DeviceManager) {device} not found")
+            return None
         
     def __del__(self):
         print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (DeviceManager) Turning off devices")
