@@ -1,5 +1,8 @@
 from app import create_app
-import RPi.GPIO as GPIO
+try:
+    import RPi.GPIO as GPIO
+except ImportError:
+    pass
 app = create_app()
 
 if __name__ == '__main__':

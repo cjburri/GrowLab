@@ -140,7 +140,7 @@ if __name__ == "__main__":
     try:
         while True:
             data_collection.collect_data()
-            time.sleep(5)
+            time.sleep(1)
     except KeyboardInterrupt:
         print("Data collection stopped")
     finally:
