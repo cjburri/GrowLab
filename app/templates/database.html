@@ -1,0 +1,350 @@
+{% extends "header.html" %}
+
+{% block title %}Database Viewer - BongCloud{% endblock %}
+
+{% block head_links %}
+<style>
+    /* Database viewer specific styles */
+    .database-container {
+        display: flex;
+        flex-direction: column;
+        width: 95%;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .table-selection {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .table-button {
+        padding: 10px 15px;
+        background-color: #1a7000;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .table-button:hover {
+        background-color: #155a00;
+    }
+
+    .table-button.active {
+        background-color: #0c3600;
+        font-weight: bold;
+    }
+
+    .table-container {
+        overflow-x: auto;
+        margin-top: 20px;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    .data-table th, .data-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    .data-table th {
+        background-color: #1a7000;
+        color: white;
+        position: sticky;
+        top: 0;
+    }
+
+    .data-table tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    .data-table tr:hover {
+        background-color: #e5e5e5;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        gap: 5px;
+    }
+
+    .pagination button {
+        padding: 5px 10px;
+        background-color: #f0f0f0;
+        border: 1px solid #ddd;
+        cursor: pointer;
+    }
+
+    .pagination button:hover {
+        background-color: #e0e0e0;
+    }
+
+    .pagination button.active {
+        background-color: #1a7000;
+        color: white;
+    }
+
+    .pagination button:disabled {
+        background-color: #f9f9f9;
+        color: #aaa;
+        cursor: not-allowed;
+    }
+
+    .loading {
+        text-align: center;
+        padding: 20px;
+        font-style: italic;
+        color: #666;
+    }
+
+    .special-options {
+        margin-top: 10px;
+        display: flex;
+        gap: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="database-container">
+    <h1>Database Viewer</h1>
+    <p>Select a table to view its data:</p>
+    
+    <div class="table-selection">
+        {% for table_name, description in tables.items() %}
+        <button class="table-button" data-table="{{ table_name }}" title="{{ description }}">{{ table_name }}</button>
+        {% endfor %}
+    </div>
+
+    <div class="special-options" id="special-options" style="display: none;">
+        <label>
+            <input type="checkbox" id="joined-view-checkbox">
+            Show joined sensor readings
+        </label>
+    </div>
+    
+    <div class="table-container">
+        <div id="loading" class="loading" style="display: none;">Loading data...</div>
+        <table class="data-table" id="data-table">
+            <thead id="table-header">
+                <tr>
+                    <!-- Headers will be dynamically added here -->
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <!-- Data rows will be dynamically added here -->
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="pagination" id="pagination">
+        <!-- Pagination controls will be added here -->
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let currentTable = null;
+        let currentPage = 1;
+        let totalPages = 1;
+        let useJoinedView = false;
+        
+        // Get DOM elements
+        const tableButtons = document.querySelectorAll('.table-button');
+        const tableHeader = document.getElementById('table-header').querySelector('tr');
+        const tableBody = document.getElementById('table-body');
+        const pagination = document.getElementById('pagination');
+        const loading = document.getElementById('loading');
+        const specialOptions = document.getElementById('special-options');
+        const joinedViewCheckbox = document.getElementById('joined-view-checkbox');
+        
+        // Add click event to table buttons
+        tableButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                tableButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Get table name
+                const tableName = this.getAttribute('data-table');
+                currentTable = tableName;
+                currentPage = 1;
+                
+                // Show special options for Reading table
+                if (tableName === 'Reading') {
+                    specialOptions.style.display = 'flex';
+                } else {
+                    specialOptions.style.display = 'none';
+                    useJoinedView = false;
+                    joinedViewCheckbox.checked = false;
+                }
+                
+                // Fetch table data
+                fetchTableData();
+            });
+        });
+        
+        // Add change event to joined view checkbox
+        joinedViewCheckbox.addEventListener('change', function() {
+            useJoinedView = this.checked;
+            fetchTableData();
+        });
+        
+        // Function to fetch table data
+        function fetchTableData() {
+            if (!currentTable) return;
+            
+            // Show loading
+            loading.style.display = 'block';
+            tableHeader.innerHTML = '';
+            tableBody.innerHTML = '';
+            pagination.innerHTML = '';
+            
+            // Build URL
+            let url = `/api/database/${currentTable}?page=${currentPage}`;
+            if (useJoinedView && currentTable === 'Reading') {
+                url += '&joined=true';
+            }
+            
+            // Fetch data
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    // Hide loading
+                    loading.style.display = 'none';
+                    
+                    // Update total pages
+                    totalPages = data.pages;
+                    
+                    // Display data
+                    displayTableData(data.data);
+                    
+                    // Update pagination
+                    updatePagination();
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                    loading.style.display = 'none';
+                    tableBody.innerHTML = `<tr><td colspan="100">Error loading data: ${error.message}</td></tr>`;
+                });
+        }
+        
+        // Function to display table data
+        function displayTableData(data) {
+            if (!data || data.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="100">No data available</td></tr>';
+                return;
+            }
+            
+            // Get column names from first row
+            const columns = Object.keys(data[0]);
+            
+            // Create header row
+            let headerHtml = '';
+            columns.forEach(column => {
+                headerHtml += `<th>${column}</th>`;
+            });
+            tableHeader.innerHTML = headerHtml;
+            
+            // Create data rows
+            let bodyHtml = '';
+            data.forEach(row => {
+                bodyHtml += '<tr>';
+                columns.forEach(column => {
+                    let value = row[column];
+                    
+                    // Format value for display
+                    if (value === null || value === undefined) {
+                        value = 'N/A';
+                    } else if (typeof value === 'boolean') {
+                        value = value ? 'Yes' : 'No';
+                    }
+                    
+                    bodyHtml += `<td>${value}</td>`;
+                });
+                bodyHtml += '</tr>';
+            });
+            tableBody.innerHTML = bodyHtml;
+        }
+        
+        // Function to update pagination
+        function updatePagination() {
+            // Clear pagination
+            pagination.innerHTML = '';
+            
+            // Add first page button
+            const firstButton = document.createElement('button');
+            firstButton.innerHTML = '&laquo;';
+            firstButton.disabled = currentPage === 1;
+            firstButton.addEventListener('click', () => {
+                currentPage = 1;
+                fetchTableData();
+            });
+            pagination.appendChild(firstButton);
+            
+            // Add previous page button
+            const prevButton = document.createElement('button');
+            prevButton.innerHTML = '&lt;';
+            prevButton.disabled = currentPage === 1;
+            prevButton.addEventListener('click', () => {
+                currentPage--;
+                fetchTableData();
+            });
+            pagination.appendChild(prevButton);
+            
+            // Add page buttons
+            const maxButtons = 5;
+            const startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+            const endPage = Math.min(totalPages, startPage + maxButtons - 1);
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.textContent = i;
+                pageButton.classList.toggle('active', i === currentPage);
+                pageButton.addEventListener('click', () => {
+                    currentPage = i;
+                    fetchTableData();
+                });
+                pagination.appendChild(pageButton);
+            }
+            
+            // Add next page button
+            const nextButton = document.createElement('button');
+            nextButton.innerHTML = '&gt;';
+            nextButton.disabled = currentPage === totalPages;
+            nextButton.addEventListener('click', () => {
+                currentPage++;
+                fetchTableData();
+            });
+            pagination.appendChild(nextButton);
+            
+            // Add last page button
+            const lastButton = document.createElement('button');
+            lastButton.innerHTML = '&raquo;';
+            lastButton.disabled = currentPage === totalPages;
+            lastButton.addEventListener('click', () => {
+                currentPage = totalPages;
+                fetchTableData();
+            });
+            pagination.appendChild(lastButton);
+        }
+    });
+</script>
+{% endblock %} 

@@ -30,6 +30,25 @@ def create_app():
             default_config = Config()
             db.session.add(default_config)
             db.session.commit()
+        
+        # Initialize with default event codes if none exist
+        from app.models import Event
+        if not Event.query.first():
+            default_events = [
+                Event(id=100, event_string="Light off"),
+                Event(id=101, event_string="Light on"),
+                Event(id=200, event_string="Atomizer off"),
+                Event(id=201, event_string="Atomizer on"),
+                Event(id=300, event_string="Fan off"),
+                Event(id=301, event_string="Fan on"),
+                Event(id=400, event_string="Pump off"),
+                Event(id=401, event_string="Pump on"),
+                Event(id=500, event_string="Heater off"),
+                Event(id=501, event_string="Heater on")
+            ]
+            for event in default_events:
+                db.session.add(event)
+            db.session.commit()
     
     app.register_blueprint(bp)
     return app

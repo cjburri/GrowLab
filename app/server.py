@@ -1,9 +1,11 @@
 from flask import Blueprint, render_template, request, jsonify
-from app.models import db, Config
+from app.models import db, Config, Reading, LightReading, TemperatureReading, HumidityReading, Water_Reading, Soil_Moisture_Reading, Log, Event
 from app.services.DeviceManager import DeviceManager
 from app.config import DEBUG_MODE
 from app.hardware.gpio_manager import initialize_gpio, cleanup_gpio
 import time
+import datetime
+from sqlalchemy import text
 
 OUTPUT_DEVICES = ['atomizer', 'light', 'water', 'heater']
 INPUT_DEVICES = ['temperature_sensor', 'humidity_sensor', 'ultrasonic_trigger', 'ultrasonic_echo', 'soil_moisture_sensor', 'light_sensor']
@@ -22,6 +24,10 @@ def config():
     # Get current configuration from database
     config = Config.query.first()
     return render_template('config.html', active_page='config', config=config)
+
+@bp.route('/graph')
+def graph():
+    return render_template('graph.html', active_page='graph')
 
 @bp.route('/api/config', methods=['GET'])
 def get_config():
@@ -127,6 +133,319 @@ def control_device():
     else:
         device_manager.turn_off(device)
     return jsonify({'status': 'success', 'device': device, 'state': state})
+
+@bp.route('/database')
+def database():
+    # Define tables that can be viewed
+    tables = {
+        'Reading': 'Sensor readings base table',
+        'LightReading': 'Light sensor readings',
+        'TemperatureReading': 'Temperature sensor readings',
+        'HumidityReading': 'Humidity sensor readings',
+        'Water_Reading': 'Water level readings',
+        'Soil_Moisture_Reading': 'Soil moisture readings',
+        'Config': 'System configuration',
+        'Log': 'System logs',
+        'Event': 'System events'
+    }
+    return render_template('database.html', active_page='database', tables=tables)
+
+@bp.route('/api/database/<table_name>', methods=['GET'])
+def get_table_data(table_name):
+    # Map table names to actual model classes
+    models = {
+        'Reading': Reading,
+        'LightReading': LightReading,
+        'TemperatureReading': TemperatureReading,
+        'HumidityReading': HumidityReading,
+        'Water_Reading': Water_Reading,
+        'Soil_Moisture_Reading': Soil_Moisture_Reading,
+        'Config': Config,
+        'Log': Log,
+        'Event': Event
+    }
+    
+    # Check if the requested table exists
+    if table_name not in models:
+        return jsonify({'error': 'Table not found'}), 404
+    
+    # Get the model class
+    model = models[table_name]
+    
+    # Get pagination parameters
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 50, type=int)
+    
+    # For all sensor readings tables, use a joined query to include the timestamp
+    if table_name in ['LightReading', 'TemperatureReading', 'HumidityReading', 'Water_Reading', 'Soil_Moisture_Reading']:
+        # Build a custom query based on the sensor type
+        if table_name == 'LightReading':
+            # Custom query for light readings
+            result = db.session.execute(text("""
+                SELECT 
+                    lr.id, lr.light_level, r.timestamp
+                FROM light_reading lr
+                JOIN reading r ON lr.id = r.id
+                ORDER BY r.timestamp DESC
+                LIMIT :limit OFFSET :offset
+            """), {'limit': per_page, 'offset': (page - 1) * per_page})
+            
+            # Convert result to dict
+            data = []
+            for row in result:
+                # Handle timestamp
+                timestamp_value = row.timestamp
+                if timestamp_value is not None:
+                    if isinstance(timestamp_value, str):
+                        formatted_timestamp = timestamp_value
+                    else:
+                        # It's a datetime object, so we can call isoformat()
+                        formatted_timestamp = timestamp_value.isoformat()
+                else:
+                    formatted_timestamp = None
+                    
+                data.append({
+                    'id': row.id,
+                    'light_level': row.light_level,
+                    'timestamp': formatted_timestamp
+                })
+            
+            # Get total count for pagination
+            count_result = db.session.execute(text("SELECT COUNT(*) as count FROM light_reading"))
+            total = next(count_result).count
+            
+        elif table_name == 'TemperatureReading':
+            # Custom query for temperature readings
+            result = db.session.execute(text("""
+                SELECT 
+                    tr.id, tr.temperature, r.timestamp
+                FROM temperature_reading tr
+                JOIN reading r ON tr.id = r.id
+                ORDER BY r.timestamp DESC
+                LIMIT :limit OFFSET :offset
+            """), {'limit': per_page, 'offset': (page - 1) * per_page})
+            
+            # Convert result to dict
+            data = []
+            for row in result:
+                # Handle timestamp
+                timestamp_value = row.timestamp
+                if timestamp_value is not None:
+                    if isinstance(timestamp_value, str):
+                        formatted_timestamp = timestamp_value
+                    else:
+                        # It's a datetime object, so we can call isoformat()
+                        formatted_timestamp = timestamp_value.isoformat()
+                else:
+                    formatted_timestamp = None
+                    
+                data.append({
+                    'id': row.id,
+                    'temperature': row.temperature,
+                    'timestamp': formatted_timestamp
+                })
+            
+            # Get total count for pagination
+            count_result = db.session.execute(text("SELECT COUNT(*) as count FROM temperature_reading"))
+            total = next(count_result).count
+            
+        elif table_name == 'HumidityReading':
+            # Custom query for humidity readings
+            result = db.session.execute(text("""
+                SELECT 
+                    hr.id, hr.humidity, r.timestamp
+                FROM humidity_reading hr
+                JOIN reading r ON hr.id = r.id
+                ORDER BY r.timestamp DESC
+                LIMIT :limit OFFSET :offset
+            """), {'limit': per_page, 'offset': (page - 1) * per_page})
+            
+            # Convert result to dict
+            data = []
+            for row in result:
+                # Handle timestamp
+                timestamp_value = row.timestamp
+                if timestamp_value is not None:
+                    if isinstance(timestamp_value, str):
+                        formatted_timestamp = timestamp_value
+                    else:
+                        # It's a datetime object, so we can call isoformat()
+                        formatted_timestamp = timestamp_value.isoformat()
+                else:
+                    formatted_timestamp = None
+                    
+                data.append({
+                    'id': row.id,
+                    'humidity': row.humidity,
+                    'timestamp': formatted_timestamp
+                })
+            
+            # Get total count for pagination
+            count_result = db.session.execute(text("SELECT COUNT(*) as count FROM humidity_reading"))
+            total = next(count_result).count
+            
+        elif table_name == 'Water_Reading':
+            # Custom query for water readings
+            result = db.session.execute(text("""
+                SELECT 
+                    wr.id, wr.water_level, r.timestamp
+                FROM water_reading wr
+                JOIN reading r ON wr.id = r.id
+                ORDER BY r.timestamp DESC
+                LIMIT :limit OFFSET :offset
+            """), {'limit': per_page, 'offset': (page - 1) * per_page})
+            
+            # Convert result to dict
+            data = []
+            for row in result:
+                # Handle timestamp
+                timestamp_value = row.timestamp
+                if timestamp_value is not None:
+                    if isinstance(timestamp_value, str):
+                        formatted_timestamp = timestamp_value
+                    else:
+                        # It's a datetime object, so we can call isoformat()
+                        formatted_timestamp = timestamp_value.isoformat()
+                else:
+                    formatted_timestamp = None
+                    
+                data.append({
+                    'id': row.id,
+                    'water_level': row.water_level,
+                    'timestamp': formatted_timestamp
+                })
+            
+            # Get total count for pagination
+            count_result = db.session.execute(text("SELECT COUNT(*) as count FROM water_reading"))
+            total = next(count_result).count
+            
+        elif table_name == 'Soil_Moisture_Reading':
+            # Custom query for soil moisture readings
+            result = db.session.execute(text("""
+                SELECT 
+                    smr.id, smr.soil_moisture, r.timestamp
+                FROM soil_moisture_reading smr
+                JOIN reading r ON smr.id = r.id
+                ORDER BY r.timestamp DESC
+                LIMIT :limit OFFSET :offset
+            """), {'limit': per_page, 'offset': (page - 1) * per_page})
+            
+            # Convert result to dict
+            data = []
+            for row in result:
+                # Handle timestamp
+                timestamp_value = row.timestamp
+                if timestamp_value is not None:
+                    if isinstance(timestamp_value, str):
+                        formatted_timestamp = timestamp_value
+                    else:
+                        # It's a datetime object, so we can call isoformat()
+                        formatted_timestamp = timestamp_value.isoformat()
+                else:
+                    formatted_timestamp = None
+                    
+                data.append({
+                    'id': row.id,
+                    'soil_moisture': row.soil_moisture,
+                    'timestamp': formatted_timestamp
+                })
+            
+            # Get total count for pagination
+            count_result = db.session.execute(text("SELECT COUNT(*) as count FROM soil_moisture_reading"))
+            total = next(count_result).count
+            
+        return jsonify({
+            'data': data, 
+            'total': total,
+            'page': page,
+            'per_page': per_page,
+            'pages': (total + per_page - 1) // per_page
+        })
+    
+    # For joined tables, use a custom query
+    elif table_name == 'Reading' and request.args.get('joined') == 'true':
+        # Custom query for joined readings
+        result = db.session.execute(text("""
+            SELECT 
+                r.id, r.timestamp,
+                tr.temperature,
+                hr.humidity,
+                lr.light_level,
+                wr.water_level,
+                smr.soil_moisture
+            FROM reading r
+            LEFT JOIN temperature_reading tr ON r.id = tr.id
+            LEFT JOIN humidity_reading hr ON r.id = hr.id
+            LEFT JOIN light_reading lr ON r.id = lr.id
+            LEFT JOIN water_reading wr ON r.id = wr.id
+            LEFT JOIN soil_moisture_reading smr ON r.id = smr.id
+            ORDER BY r.timestamp DESC
+            LIMIT :limit OFFSET :offset
+        """), {'limit': per_page, 'offset': (page - 1) * per_page})
+        
+        # Convert result to dict
+        data = []
+        for row in result:
+            # Check if timestamp is already a string or a datetime object
+            timestamp_value = row.timestamp
+            if timestamp_value is not None:
+                if isinstance(timestamp_value, str):
+                    formatted_timestamp = timestamp_value
+                else:
+                    # It's a datetime object, so we can call isoformat()
+                    formatted_timestamp = timestamp_value.isoformat()
+            else:
+                formatted_timestamp = None
+                
+            data.append({
+                'id': row.id,
+                'timestamp': formatted_timestamp,
+                'temperature': row.temperature,
+                'humidity': row.humidity,
+                'light_level': row.light_level,
+                'water_level': row.water_level,
+                'soil_moisture': row.soil_moisture
+            })
+        
+        # Get total count for pagination
+        count_result = db.session.execute(text("SELECT COUNT(*) as count FROM reading"))
+        total = next(count_result).count
+        
+        return jsonify({
+            'data': data, 
+            'total': total,
+            'page': page,
+            'per_page': per_page,
+            'pages': (total + per_page - 1) // per_page
+        })
+    
+    # For regular tables, use the default query
+    else:
+        # Get data from the table with pagination
+        items = model.query.paginate(page=page, per_page=per_page)
+        
+        # Convert to dict
+        data = []
+        for item in items.items:
+            item_dict = {}
+            for column in item.__table__.columns:
+                value = getattr(item, column.name)
+                # Convert datetime to string for JSON
+                if isinstance(value, datetime.datetime):
+                    value = value.isoformat()
+                # Handle any timestamp strings that might have been saved incorrectly
+                elif column.name == 'timestamp' and isinstance(value, str):
+                    value = value  # Keep as is, it's already a string
+                item_dict[column.name] = value
+            data.append(item_dict)
+        
+        return jsonify({
+            'data': data, 
+            'total': items.total,
+            'page': page,
+            'per_page': per_page,
+            'pages': items.pages
+        })
 
 def cleanup():
     """Cleanup function to be called when the application is shutting down"""
