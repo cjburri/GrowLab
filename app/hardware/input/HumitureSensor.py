@@ -24,7 +24,7 @@ class HumiditySensor(Sensor):
         super().__init__(signal_pin, "HumiditySensor", debug_mode)
         if not self.debug_mode:
             self.signal_pin = signal_pin
-            self.dht = Adafruit_DHT.DHT11(Adafruit_DHT.DHT11, self.signal_pin)
+            self.dht = Adafruit_DHT.DHT11
         print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (HumiditySensor) Initialized on pin {self.signal_pin}")
 
     def read(self):
