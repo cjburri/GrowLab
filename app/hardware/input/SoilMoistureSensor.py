@@ -7,13 +7,11 @@ try:
     import digitalio
     import adafruit_mcp3xxx.mcp3008 as MCP
     from adafruit_mcp3xxx.analog_in import AnalogIn
-except ImportError:
-    from unittest.mock import MagicMock
-    board = MagicMock()
-    busio = MagicMock()
-    digitalio = MagicMock()
-    MCP = MagicMock()
-    AnalogIn = MagicMock()
+except ImportError as e:
+    print(f"Error: Could not import board or adafruit_mcp3xxx: {e}")
+except NotImplementedError as e:
+    print(f"Error: Could not import board or adafruit_mcp3xxx: {e}")
+
 class SoilMoistureSensor(Sensor):
     def __init__(self, adc_channel: int = 0, debug_mode: bool = False):
         """

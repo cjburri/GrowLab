@@ -31,5 +31,8 @@ class Light(RelayControlledComponent):
         """
         Destructor to clean up GPIO resources.
         """
-        super().__del__()
+        try:
+            RelayControlledComponent.__del__(self)
+        except AttributeError:
+            pass 
 

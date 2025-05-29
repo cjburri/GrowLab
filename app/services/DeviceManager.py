@@ -3,7 +3,7 @@ from app.hardware.output.Light import Light
 from app.hardware.output.WaterPump import WaterPump
 from app.hardware.output.Heater import Heater
 from app.hardware.input.TemperatureSensor import TemperatureSensor
-from app.hardware.input.HumiditySensor import HumiditySensor
+from app.hardware.input.HumitureSensor import HumiditySensor
 from app.hardware.input.UltrasonicSensor import UltrasonicSensor
 from app.hardware.input.LightSensor import LightSensor
 from app.hardware.input.SoilMoistureSensor import SoilMoistureSensor
@@ -79,6 +79,9 @@ class DeviceManager:
             return self.humidity_sensor.read()
         elif device == 'soil_moisture_sensor' and self.soil_moisture_sensor is not None:
             return self.soil_moisture_sensor.read()
+        else:
+            print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (DeviceManager) {device} not found")
+            return None
         
     def __del__(self):
         print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - (DeviceManager) Turning off devices")

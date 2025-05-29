@@ -1,0 +1,782 @@
+{% extends "header.html" %}
+
+{% block title %}Graph Viewer - BongCloud{% endblock %}
+
+{% block head_links %}
+<style>
+    /* Graph viewer specific styles */
+    .graph-container {
+        display: flex;
+        flex-direction: column;
+        width: 95%;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .chart-container {
+        width: 100%;
+        height: 500px;
+        margin-top: 20px;
+        padding-bottom: 40px; /* Add padding at the bottom for x-axis labels */
+        position: relative;
+    }
+
+    .chart-wrapper {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        background-color: #fff;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        padding: 10px;
+    }
+
+    .control-panel {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .sensor-selector {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .sensor-button {
+        padding: 10px 15px;
+        background-color: #1a7000;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .sensor-button:hover {
+        background-color: #155a00;
+    }
+
+    .sensor-button.active {
+        background-color: #0c3600;
+        font-weight: bold;
+    }
+
+    .time-range {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .time-range select {
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+    }
+
+    .loading {
+        text-align: center;
+        padding: 20px;
+        font-style: italic;
+        color: #666;
+    }
+
+    .error-message {
+        color: #ff0000;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+    
+    /* Axis label styles */
+    .axis-label {
+        position: absolute;
+        font-size: 12px;
+        color: #666;
+    }
+    
+    .x-axis-label {
+        bottom: 5px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    .y-axis-label {
+        left: 5px;
+        top: 50%;
+        transform: translateY(-50%) rotate(-90deg);
+        transform-origin: left top;
+    }
+    
+    /* Auto-refresh styles */
+    .refresh-controls {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 10px 0;
+        margin-top: 10px;
+        border-top: 1px solid #eee;
+    }
+    
+    .refresh-info {
+        font-size: 14px;
+        color: #666;
+    }
+    
+    .refresh-time {
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .auto-refresh-toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .toggle-button {
+        padding: 8px 15px;
+        background-color: #1a7000;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    .toggle-button:hover {
+        background-color: #155a00;
+    }
+    
+    .auto-refresh-status {
+        font-weight: bold;
+        color: #888;
+        min-width: 30px;
+    }
+    
+    .auto-refresh-status.active {
+        color: #1a7000;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="graph-container">
+    <h1>Sensor Reading Graphs</h1>
+    
+    <div class="control-panel">
+        <div class="sensor-selector">
+            <label>Sensor Type:</label>
+            <button id="light-sensor" class="sensor-button active">Light</button>
+            <button id="temp-sensor" class="sensor-button">Temperature</button>
+            <button id="humidity-sensor" class="sensor-button">Humidity</button>
+            <button id="water-sensor" class="sensor-button">Water Level</button>
+            <button id="soil-sensor" class="sensor-button">Soil Moisture</button>
+        </div>
+        
+        <div class="time-range">
+            <label>Time Range:</label>
+            <select id="time-range-selector">
+                <option value="5min">Last 5 Minutes</option>
+                <option value="15min">Last 15 Minutes</option>
+                <option value="30min">Last 30 Minutes</option>
+                <option value="hour">Last Hour</option>
+                <option value="day" selected>Last 24 Hours</option>
+                <option value="week">Last Week</option>
+                <option value="month">Last Month</option>
+                <option value="all">All Time</option>
+            </select>
+        </div>
+    </div>
+    
+    <div id="loading" class="loading">Loading data...</div>
+    <div id="error-message" class="error-message" style="display: none;"></div>
+    
+    <div class="chart-container">
+        <div class="chart-wrapper">
+            <canvas id="reading-chart"></canvas>
+        </div>
+    </div>
+    
+    <div class="refresh-controls">
+        <div class="refresh-info">
+            Last updated: <span id="last-refresh-time" class="refresh-time">-</span>
+        </div>
+        <div class="auto-refresh-toggle">
+            <span>Auto-refresh (5s):</span>
+            <span id="auto-refresh-status" class="auto-refresh-status">OFF</span>
+            <button id="auto-refresh-toggle" class="toggle-button">Toggle</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/luxon@3.0.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.0.0"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // DOM elements
+        const lightSensorButton = document.getElementById('light-sensor');
+        const tempSensorButton = document.getElementById('temp-sensor');
+        const humiditySensorButton = document.getElementById('humidity-sensor');
+        const waterSensorButton = document.getElementById('water-sensor');
+        const soilSensorButton = document.getElementById('soil-sensor');
+        const timeRangeSelector = document.getElementById('time-range-selector');
+        const loadingElement = document.getElementById('loading');
+        const errorElement = document.getElementById('error-message');
+        const chartCanvas = document.getElementById('reading-chart');
+        
+        // Chart object
+        let readingChart = null;
+        
+        // Current settings
+        let currentSensor = 'light';
+        let currentTimeRange = 'day';
+        
+        // Refresh interval in milliseconds
+        const refreshInterval = 5000; // 5 seconds
+        
+        // Variable to store the interval ID
+        let dataRefreshInterval = null;
+        
+        // Flag to prevent simultaneous fetches
+        let isFetching = false;
+        
+        // Initialize chart
+        function initChart() {
+            const ctx = chartCanvas.getContext('2d');
+            readingChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Light Level',
+                        borderColor: '#ffcc00',
+                        backgroundColor: 'rgba(255, 204, 0, 0.1)',
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#ffcc00',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'minute',
+                                displayFormats: {
+                                    minute: 'MMM d, HH:mm'
+                                },
+                                tooltipFormat: 'MMM d, yyyy HH:mm:ss'
+                            },
+                            grid: {
+                                display: true,
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            ticks: {
+                                autoSkip: true,
+                                maxRotation: 45,
+                                minRotation: 0,
+                                color: '#333',
+                                font: {
+                                    size: 11
+                                },
+                                maxTicksLimit: 10,
+                                align: 'center',
+                                padding: 8
+                            },
+                            title: {
+                                display: true,
+                                text: 'Time',
+                                color: '#333',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                padding: {top: 10, bottom: 10}
+                            },
+                            display: true,
+                            position: 'bottom',
+                            offset: true,
+                            bounds: 'ticks'
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                display: true,
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            ticks: {
+                                color: '#333',
+                                font: {
+                                    size: 11
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Light Level',
+                                color: '#333',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                padding: {top: 0, left: 0, right: 0, bottom: 10}
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                color: '#333',
+                                font: {
+                                    size: 12
+                                },
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                            titleFont: {
+                                size: 12
+                            },
+                            bodyFont: {
+                                size: 12
+                            },
+                            padding: 10
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    },
+                    animation: {
+                        duration: 1000
+                    },
+                    layout: {
+                        padding: {
+                            left: 10,
+                            right: 25,
+                            top: 20,
+                            bottom: 10
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Update chart settings based on sensor type
+        function updateChartSettings(sensorType) {
+            if (!readingChart) return;
+            
+            let label, color, yAxisLabel;
+            
+            switch (sensorType) {
+                case 'light':
+                    label = 'Light Level';
+                    color = '#ffcc00';
+                    yAxisLabel = 'Light Level';
+                    break;
+                case 'temperature':
+                    label = 'Temperature';
+                    color = '#ff4d4d';
+                    yAxisLabel = 'Temperature (°C)';
+                    break;
+                case 'humidity':
+                    label = 'Humidity';
+                    color = '#4da6ff';
+                    yAxisLabel = 'Humidity (%)';
+                    break;
+                case 'water':
+                    label = 'Water Level';
+                    color = '#33ccff';
+                    yAxisLabel = 'Water Level';
+                    break;
+                case 'soil':
+                    label = 'Soil Moisture';
+                    color = '#663300';
+                    yAxisLabel = 'Soil Moisture';
+                    break;
+            }
+            
+            readingChart.data.datasets[0].label = label;
+            readingChart.data.datasets[0].borderColor = color;
+            readingChart.data.datasets[0].backgroundColor = `${color}33`; // Add transparency
+            readingChart.data.datasets[0].pointBackgroundColor = color;
+            readingChart.options.scales.y.title.text = yAxisLabel;
+            
+            readingChart.update();
+        }
+        
+        // Fetch data from the API
+        function fetchData() {
+            // If already fetching, don't start another fetch
+            if (isFetching) return;
+            
+            isFetching = true;
+            
+            // Only show loading indicator for initial load, not refreshes
+            if (readingChart.data.datasets[0].data.length === 0) {
+                loadingElement.style.display = 'block';
+            }
+            
+            errorElement.style.display = 'none';
+            
+            // Determine which table to query based on sensor type
+            let tableName, dataField;
+            switch (currentSensor) {
+                case 'light':
+                    tableName = 'LightReading';
+                    dataField = 'light_level';
+                    break;
+                case 'temperature':
+                    tableName = 'TemperatureReading';
+                    dataField = 'temperature';
+                    break;
+                case 'humidity':
+                    tableName = 'HumidityReading';
+                    dataField = 'humidity';
+                    break;
+                case 'water':
+                    tableName = 'Water_Reading';
+                    dataField = 'water_level';
+                    break;
+                case 'soil':
+                    tableName = 'Soil_Moisture_Reading';
+                    dataField = 'soil_moisture';
+                    break;
+            }
+            
+            // Set a large per_page value to get more data for the graph
+            const url = `/api/database/${tableName}?per_page=1000`;
+            
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                    loadingElement.style.display = 'none';
+                    
+                    if (!data.data || data.data.length === 0) {
+                        errorElement.textContent = 'No data available for the selected sensor';
+                        errorElement.style.display = 'block';
+                        isFetching = false;
+                        return;
+                    }
+                    
+                    // Process the data for Chart.js
+                    const chartData = data.data.map(item => {
+                        try {
+                            // Handle different timestamp formats and validate before creating Date object
+                            let xValue;
+                            if (item.timestamp) {
+                                // Try to parse the timestamp - handle both string timestamps and null values
+                                try {
+                                    xValue = new Date(item.timestamp);
+                                    // Verify we got a valid date
+                                    if (isNaN(xValue.getTime())) {
+                                        console.warn(`Invalid timestamp: ${item.timestamp}`);
+                                        xValue = new Date(); // Fallback to current time
+                                    }
+                                } catch (e) {
+                                    console.error(`Error parsing timestamp: ${e.message}`);
+                                    xValue = new Date(); // Fallback to current time
+                                }
+                            } else {
+                                // No timestamp, use current time as fallback
+                                xValue = new Date();
+                            }
+                            
+                            // Get the y-value for the current sensor
+                            const yValue = item[dataField];
+                            
+                            // Validate yValue is a number
+                            if (yValue === null || yValue === undefined || isNaN(parseFloat(yValue))) {
+                                console.warn(`Missing or invalid ${dataField} value for entry: ${item.id}`);
+                                return null; // Skip this point
+                            }
+                            
+                            return {
+                                x: xValue,
+                                y: parseFloat(yValue) // Ensure it's a number
+                            };
+                        } catch (error) {
+                            console.error('Error processing data point:', error, item);
+                            return null; // Skip this point
+                        }
+                    })
+                    .filter(point => point !== null); // Remove null entries
+                    
+                    // If no valid data points, show error
+                    if (chartData.length === 0) {
+                        errorElement.textContent = 'No valid data available for the selected sensor';
+                        errorElement.style.display = 'block';
+                        isFetching = false;
+                        return;
+                    }
+                    
+                    // Filter data based on time range
+                    const filteredData = filterDataByTimeRange(chartData);
+                    
+                    // Sort data by timestamp ascending
+                    filteredData.sort((a, b) => a.x - b.x);
+                    
+                    // Update the chart
+                    readingChart.data.datasets[0].data = filteredData;
+                    
+                    // Update time unit based on selected range
+                    updateTimeUnit();
+                    
+                    readingChart.update();
+                    
+                    // Mark fetch as complete
+                    isFetching = false;
+                    
+                    // Add last update timestamp to the page
+                    updateLastRefreshTime();
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                    loadingElement.style.display = 'none';
+                    errorElement.textContent = `Error: ${error.message}`;
+                    errorElement.style.display = 'block';
+                    
+                    // Mark fetch as complete even on error
+                    isFetching = false;
+                });
+        }
+        
+        // Update last refresh time
+        function updateLastRefreshTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            const refreshTimeElement = document.getElementById('last-refresh-time');
+            if (refreshTimeElement) {
+                refreshTimeElement.textContent = timeString;
+            }
+        }
+        
+        // Start auto-refresh interval
+        function startAutoRefresh() {
+            // Clear any existing interval
+            stopAutoRefresh();
+            
+            // Set new interval
+            dataRefreshInterval = setInterval(fetchData, refreshInterval);
+            
+            // Update auto-refresh status
+            const statusElement = document.getElementById('auto-refresh-status');
+            if (statusElement) {
+                statusElement.textContent = 'ON';
+                statusElement.classList.add('active');
+            }
+        }
+        
+        // Stop auto-refresh interval
+        function stopAutoRefresh() {
+            if (dataRefreshInterval) {
+                clearInterval(dataRefreshInterval);
+                dataRefreshInterval = null;
+            }
+            
+            // Update auto-refresh status
+            const statusElement = document.getElementById('auto-refresh-status');
+            if (statusElement) {
+                statusElement.textContent = 'OFF';
+                statusElement.classList.remove('active');
+            }
+        }
+        
+        // Toggle auto-refresh
+        function toggleAutoRefresh() {
+            if (dataRefreshInterval) {
+                stopAutoRefresh();
+            } else {
+                startAutoRefresh();
+            }
+        }
+        
+        // Filter data based on selected time range
+        function filterDataByTimeRange(data) {
+            const now = new Date();
+            let cutoff;
+            
+            switch (currentTimeRange) {
+                case '5min':
+                    cutoff = new Date(now - 5 * 60 * 1000); // 5 minutes ago
+                    break;
+                case '15min':
+                    cutoff = new Date(now - 15 * 60 * 1000); // 15 minutes ago
+                    break;
+                case '30min':
+                    cutoff = new Date(now - 30 * 60 * 1000); // 30 minutes ago
+                    break;
+                case 'hour':
+                    cutoff = new Date(now - 60 * 60 * 1000); // 1 hour ago
+                    break;
+                case 'day':
+                    cutoff = new Date(now - 24 * 60 * 60 * 1000); // 24 hours ago
+                    break;
+                case 'week':
+                    cutoff = new Date(now - 7 * 24 * 60 * 60 * 1000); // 7 days ago
+                    break;
+                case 'month':
+                    cutoff = new Date(now - 30 * 24 * 60 * 60 * 1000); // 30 days ago
+                    break;
+                case 'all':
+                default:
+                    return data; // No filtering
+            }
+            
+            return data.filter(point => new Date(point.x) >= cutoff);
+        }
+        
+        // Update chart time unit based on selected time range
+        function updateTimeUnit() {
+            let unit, format, stepSize;
+            
+            switch (currentTimeRange) {
+                case '5min':
+                    unit = 'second';
+                    format = 'HH:mm:ss';
+                    stepSize = 30; // Show a tick every 30 seconds
+                    break;
+                case '15min':
+                    unit = 'second';
+                    format = 'HH:mm:ss';
+                    stepSize = 60; // Show a tick every minute
+                    break;
+                case '30min':
+                    unit = 'minute';
+                    format = 'HH:mm';
+                    stepSize = 5; // Show a tick every 5 minutes
+                    break;
+                case 'hour':
+                    unit = 'minute';
+                    format = 'HH:mm';
+                    stepSize = 10; // Show a tick every 10 minutes
+                    break;
+                case 'day':
+                    unit = 'hour';
+                    format = 'HH:mm';
+                    stepSize = 2; // Show a tick every 2 hours
+                    break;
+                case 'week':
+                    unit = 'day';
+                    format = 'MMM d';
+                    stepSize = 1; // Show a tick every day
+                    break;
+                case 'month':
+                    unit = 'day';
+                    format = 'MMM d';
+                    stepSize = 5; // Show a tick every 5 days
+                    break;
+                case 'all':
+                    unit = 'month';
+                    format = 'MMM yyyy';
+                    stepSize = 1; // Show a tick every month
+                    break;
+            }
+            
+            readingChart.options.scales.x.time.unit = unit;
+            readingChart.options.scales.x.time.displayFormats[unit] = format;
+            readingChart.options.scales.x.ticks.stepSize = stepSize;
+            
+            // Update axis title based on time range
+            if (currentTimeRange === '5min' || currentTimeRange === '15min' || 
+                currentTimeRange === '30min' || currentTimeRange === 'hour') {
+                readingChart.options.scales.x.title.text = 'Time (HH:MM:SS)';
+            } else if (currentTimeRange === 'day') {
+                readingChart.options.scales.x.title.text = 'Time (Hours)';
+            } else if (currentTimeRange === 'week' || currentTimeRange === 'month') {
+                readingChart.options.scales.x.title.text = 'Date';
+            } else {
+                readingChart.options.scales.x.title.text = 'Month/Year';
+            }
+        }
+        
+        // Set active sensor button
+        function setActiveSensorButton(button) {
+            // Remove active class from all buttons
+            [lightSensorButton, tempSensorButton, humiditySensorButton, waterSensorButton, soilSensorButton]
+                .forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to selected button
+            button.classList.add('active');
+        }
+        
+        // Event listeners for sensor buttons
+        lightSensorButton.addEventListener('click', function() {
+            setActiveSensorButton(this);
+            currentSensor = 'light';
+            updateChartSettings('light');
+            fetchData();
+        });
+        
+        tempSensorButton.addEventListener('click', function() {
+            setActiveSensorButton(this);
+            currentSensor = 'temperature';
+            updateChartSettings('temperature');
+            fetchData();
+        });
+        
+        humiditySensorButton.addEventListener('click', function() {
+            setActiveSensorButton(this);
+            currentSensor = 'humidity';
+            updateChartSettings('humidity');
+            fetchData();
+        });
+        
+        waterSensorButton.addEventListener('click', function() {
+            setActiveSensorButton(this);
+            currentSensor = 'water';
+            updateChartSettings('water');
+            fetchData();
+        });
+        
+        soilSensorButton.addEventListener('click', function() {
+            setActiveSensorButton(this);
+            currentSensor = 'soil';
+            updateChartSettings('soil');
+            fetchData();
+        });
+        
+        // Event listener for time range selector
+        timeRangeSelector.addEventListener('change', function() {
+            currentTimeRange = this.value;
+            fetchData();
+        });
+        
+        // Event listener for auto-refresh toggle
+        document.getElementById('auto-refresh-toggle').addEventListener('click', toggleAutoRefresh);
+        
+        // Initialize the chart and fetch data
+        initChart();
+        
+        // Set initial time unit
+        updateTimeUnit();
+        
+        // Fetch initial data
+        fetchData();
+        
+        // Start auto-refresh by default
+        startAutoRefresh();
+    });
+</script>
+{% endblock %} 

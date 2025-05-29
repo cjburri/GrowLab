@@ -8,6 +8,8 @@ except ImportError:
     GPIO.LOW = False
     GPIO.OUT = 'out'
 import time
+from app.models import db, Log
+from datetime import datetime
 from typing import Literal, Union
 
 class RelayControlledComponent:
@@ -94,7 +96,21 @@ class RelayControlledComponent:
         if not self.debug_mode:
             self.__set_state(GPIO.HIGH)
         else:
-            print(f"[{self.component_name}] Debug mode enabled, {self.component_name} set to HIGH")
+            print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - ({self.component_name}) Debug mode enabled, {self.component_name} set to HIGH")
+        if self.component_name == "Light":
+            code = 101
+        elif self.component_name == "Atomizer":
+            code = 201
+        elif self.component_name == "Fan":
+            code = 301
+        elif self.component_name == "WaterPump":
+            code = 401
+        elif self.component_name == "Heater":
+            code = 501
+        log = Log(timestamp=datetime.now(), event_code=code)
+        db.session.add(log)
+        db.session.commit()
+        
 
     def turn_off(self):
         """
@@ -103,7 +119,21 @@ class RelayControlledComponent:
         if not self.debug_mode:
             self.__set_state(GPIO.LOW)
         else:
-            print(f"[{self.component_name}] Debug mode enabled, {self.component_name} set to LOW")
+            print(f"[{time.strftime('%m-%d-%Y %H:%M:%S')}] - ({self.component_name}) Debug mode enabled, {self.component_name} set to LOW")
+        if self.component_name == "Light":
+            code = 100
+        elif self.component_name == "Atomizer":
+            code = 200
+        elif self.component_name == "Fan":
+            code = 300
+        elif self.component_name == "WaterPump":
+            code = 400
+        elif self.component_name == "Heater":
+            code = 500
+        log = Log(timestamp=datetime.now(), event_code=code)
+        db.session.add(log)
+        db.session.commit()
+        
 
     def activate_for_duration(self, duration: int):
         """

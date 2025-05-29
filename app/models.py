@@ -5,34 +5,45 @@ db = SQLAlchemy()
 
 class Reading(db.Model):
     """Reading data from the grow system."""
+    __tablename__ = 'reading'
     id = db.Column(db.Integer, primary_key=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-class LightReading(Reading):
+class LightReading(db.Model):
     """Light reading data from the grow system."""
+    __tablename__ = 'light_reading'
     id = db.Column(db.Integer, db.ForeignKey('reading.id'), primary_key=True)
     light_level = db.Column(db.Float, nullable=False)
+    reading = db.relationship('Reading', backref=db.backref('light_reading', uselist=False))
 
-class TemperatureReading(Reading):
+class TemperatureReading(db.Model):
     """Temperature reading data from the grow system."""
+    __tablename__ = 'temperature_reading'
     id = db.Column(db.Integer, db.ForeignKey('reading.id'), primary_key=True)
     temperature = db.Column(db.Float, nullable=False)
+    reading = db.relationship('Reading', backref=db.backref('temperature_reading', uselist=False))
     
 
-class HumidityReading(Reading):
+class HumidityReading(db.Model):
     """Humidity reading data from the grow system."""
+    __tablename__ = 'humidity_reading'
     id = db.Column(db.Integer, db.ForeignKey('reading.id'), primary_key=True)
     humidity = db.Column(db.Float, nullable=False)
+    reading = db.relationship('Reading', backref=db.backref('humidity_reading', uselist=False))
 
-class Water_Reading(Reading):
+class Water_Reading(db.Model):
     """Water reading data from the grow system."""
+    __tablename__ = 'water_reading'
     id = db.Column(db.Integer, db.ForeignKey('reading.id'), primary_key=True)
     water_level = db.Column(db.Float, nullable=False)
+    reading = db.relationship('Reading', backref=db.backref('water_reading', uselist=False))
 
-class Soil_Moisture_Reading(Reading):
+class Soil_Moisture_Reading(db.Model):
     """Soil moisture reading data from the grow system."""
+    __tablename__ = 'soil_moisture_reading'
     id = db.Column(db.Integer, db.ForeignKey('reading.id'), primary_key=True)
     soil_moisture = db.Column(db.Float, nullable=False)
+    reading = db.relationship('Reading', backref=db.backref('soil_moisture_reading', uselist=False))
 
 class Config(db.Model):
     """Configuration settings for the grow system."""
@@ -91,9 +102,8 @@ class Config(db.Model):
 
 class Log(db.Model):
     """Log data from the grow system."""
-    id = db.Column(db.Integer, primary_key=True)
     event_code = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow, primary_key=True)
 
 class Event(db.Model):
     """Event data from the grow system."""
