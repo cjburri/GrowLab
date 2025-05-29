@@ -3,7 +3,7 @@ from app.hardware.output.Light import Light
 from app.hardware.output.WaterPump import WaterPump
 from app.hardware.output.Heater import Heater
 from app.hardware.input.TemperatureSensor import TemperatureSensor
-from app.hardware.input.HumiditySensor import HumiditySensor
+from app.hardware.input.HumitureSensor import HumiditySensor
 from app.hardware.input.UltrasonicSensor import UltrasonicSensor
 from app.hardware.input.LightSensor import LightSensor
 from app.hardware.input.SoilMoistureSensor import SoilMoistureSensor
