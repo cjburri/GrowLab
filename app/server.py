@@ -126,12 +126,13 @@ def control_device():
     data = request.json
     device = data.get('device')
     state = data.get('state', False)
-
-    device_manager = DeviceManager(debug_mode=DEBUG_MODE)
+    config = Config.query.first()
+    device_manager = DeviceManager(debug_mode=DEBUG_MODE, light_pin=config.light_pin, atomizer_pin=config.atomizer_pin, water_pin=config.water_pin, heater_pin=config.heater_pin)
     if state:
         device_manager.turn_on(device)
     else:
         device_manager.turn_off(device)
+    del device_manager
     return jsonify({'status': 'success', 'device': device, 'state': state})
 
 @bp.route('/database')
