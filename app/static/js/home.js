@@ -25,8 +25,9 @@ function getStatus() {
         .then(response => response.json())
         .then(data => {
             document.getElementById('light-control').checked = data.light;
-            document.getElementById('humidifier-control').checked = data.humidifier;
+            document.getElementById('atomizer-control').checked = data.atomizer;
             document.getElementById('water-control').checked = data.water;
+            document.getElementById('heater-control').checked = data.heater;
         })
         .catch((error) => {
             console.error('Error:', error);
@@ -46,4 +47,8 @@ document.getElementById('atomizer-control').addEventListener('change', function(
 
 document.getElementById('water-control').addEventListener('change', function() {
     updateControl('water', this.checked);
+});
+
+document.getElementById('heater-control').addEventListener('change', function() {
+    updateControl('heater', this.checked);
 });
