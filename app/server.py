@@ -14,8 +14,23 @@ bp = Blueprint('api', __name__)
 
 # Initialize GPIO at module level
 initialize_gpio()
-config = Config.query.first()
-device_manager = DeviceManager(debug_mode=DEBUG_MODE, 
+
+# Create a global variable for device_manager but don't initialize it yet
+device_manager = None
+
+def get_device_manager():
+    """Get or create the device manager singleton"""
+    global device_manager
+    if device_manager is None:
+        # Initialize device manager with config from database
+        config = Config.query.first()
+        if not config:
+            # Create default config if none exists
+            config = Config()
+            db.session.add(config)
+            db.session.commit()
+            
+        device_manager = DeviceManager(debug_mode=DEBUG_MODE, 
                                atomizer_pin=config.atomizer_pin, 
                                light_pin=config.light_pin, 
                                water_pin=config.water_pin, 
@@ -26,6 +41,7 @@ device_manager = DeviceManager(debug_mode=DEBUG_MODE,
                                ultrasonic_trigger_pin_in=config.ultrasonic_trigger_pin,
                                ultrasonic_echo_pin_in=config.ultrasonic_echo_pin,
                                soil_moisture_pin_in=config.soil_moisture_sensor_pin)
+    return device_manager
 
 @bp.route('/')
 def index():
@@ -99,11 +115,12 @@ def test_device():
     data = request.json
     print(data)
     device = data.get('device')
+    dm = get_device_manager()
     if device in OUTPUT_DEVICES:
-        device_manager.test_device(device, io="output")
+        dm.test_device(device, io="output")
         return jsonify({'status': 'success', 'device': device})
     elif device in INPUT_DEVICES:
-        value = device_manager.test_device(device, io="input")
+        value = dm.test_device(device, io="input")
         return jsonify({'status': 'success', 'device': device, 'value': value})
 
 @bp.route('/api/control', methods=['POST'])
@@ -111,10 +128,11 @@ def control_device():
     data = request.json
     device = data.get('device')
     state = data.get('state', False)
+    dm = get_device_manager()
     if state:
-        device_manager.turn_on(device)
+        dm.turn_on(device)
     else:
-        device_manager.turn_off(device)
+        dm.turn_off(device)
     return jsonify({'status': 'success', 'device': device, 'state': state})
 
 @bp.route('/database')
