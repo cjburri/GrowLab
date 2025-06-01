@@ -35,12 +35,12 @@ def get_device_manager():
                                light_pin=config.light_pin, 
                                water_pin=config.water_pin, 
                                heater_pin=config.heater_pin,
-                               light_pin_in=config.light_sensor_pin,
-                               humidity_pin_in=config.humidity_sensor_pin,
-                               temperature_pin_in=config.temperature_sensor_pin,
-                               ultrasonic_trigger_pin_in=config.ultrasonic_trigger_pin,
-                               ultrasonic_echo_pin_in=config.ultrasonic_echo_pin,
-                               soil_moisture_pin_in=config.soil_moisture_sensor_pin)
+                               light_pin_in=config.light_pin_in,
+                               humidity_pin_in=config.humidity_pin_in,
+                               temperature_pin_in=config.temperature_pin_in,
+                               ultrasonic_trigger_pin_in=config.ultrasonic_trigger_pin_in,
+                               ultrasonic_echo_pin_in=config.ultrasonic_echo_pin_in,
+                               soil_moisture_pin_in=config.soil_moisture_pin_in)
     return device_manager
 
 @bp.route('/')
