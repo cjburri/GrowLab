@@ -14,6 +14,18 @@ bp = Blueprint('api', __name__)
 
 # Initialize GPIO at module level
 initialize_gpio()
+config = Config.query.first()
+device_manager = DeviceManager(debug_mode=DEBUG_MODE, 
+                               atomizer_pin=config.atomizer_pin, 
+                               light_pin=config.light_pin, 
+                               water_pin=config.water_pin, 
+                               heater_pin=config.heater_pin,
+                               light_pin_in=config.light_sensor_pin,
+                               humidity_pin_in=config.humidity_sensor_pin,
+                               temperature_pin_in=config.temperature_sensor_pin,
+                               ultrasonic_trigger_pin_in=config.ultrasonic_trigger_pin,
+                               ultrasonic_echo_pin_in=config.ultrasonic_echo_pin,
+                               soil_moisture_pin_in=config.soil_moisture_sensor_pin)
 
 @bp.route('/')
 def index():
@@ -87,30 +99,6 @@ def test_device():
     data = request.json
     print(data)
     device = data.get('device')
-    if device == 'ultrasonic_sensor':
-        trigger_pin = data.get('trigger_pin')
-        echo_pin = data.get('echo_pin')
-        device_manager = DeviceManager(ultrasonic_trigger_pin_in=trigger_pin, ultrasonic_echo_pin_in=echo_pin, debug_mode=DEBUG_MODE)
-        value = device_manager.test_device(device, io="input")
-        del device_manager
-        return jsonify({'status': 'success', 'device': device, 'value': value})
-    elif device == 'atomizer':
-        device_manager = DeviceManager(atomizer_pin=data.get('pin'), debug_mode=DEBUG_MODE)
-    elif device == 'light':
-        device_manager = DeviceManager(light_pin=data.get('pin'), debug_mode=DEBUG_MODE)
-    elif device == 'water':
-        device_manager = DeviceManager(water_pin=data.get('pin'), debug_mode=DEBUG_MODE)
-    elif device == 'heater':
-        device_manager = DeviceManager(heater_pin=data.get('pin'), debug_mode=DEBUG_MODE)
-    elif device == 'light_sensor':
-        device_manager = DeviceManager(light_pin_in=data.get('pin'), debug_mode=DEBUG_MODE)
-    elif device == 'temperature_sensor':
-        device_manager = DeviceManager(temperature_pin_in=data.get('pin'), debug_mode=DEBUG_MODE)
-    elif device == 'humidity_sensor':
-        device_manager = DeviceManager(humidity_pin_in=data.get('pin'), debug_mode=DEBUG_MODE)
-    elif device == 'soil_moisture_sensor':
-        device_manager = DeviceManager(soil_moisture_pin_in=data.get('pin'), debug_mode=DEBUG_MODE)
-    
     if device in OUTPUT_DEVICES:
         device_manager.test_device(device, io="output")
         return jsonify({'status': 'success', 'device': device})
@@ -118,21 +106,15 @@ def test_device():
         value = device_manager.test_device(device, io="input")
         return jsonify({'status': 'success', 'device': device, 'value': value})
 
-    del device_manager
-    
-
 @bp.route('/api/control', methods=['POST'])
 def control_device():
     data = request.json
     device = data.get('device')
     state = data.get('state', False)
-    config = Config.query.first()
-    device_manager = DeviceManager(debug_mode=DEBUG_MODE, light_pin=config.light_pin, atomizer_pin=config.atomizer_pin, water_pin=config.water_pin, heater_pin=config.heater_pin)
     if state:
         device_manager.turn_on(device)
     else:
         device_manager.turn_off(device)
-    del device_manager
     return jsonify({'status': 'success', 'device': device, 'state': state})
 
 @bp.route('/database')
