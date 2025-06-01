@@ -40,8 +40,8 @@ document.getElementById('light-control').addEventListener('change', function() {
     updateControl('light', this.checked);
 });
 
-document.getElementById('humidifier-control').addEventListener('change', function() {
-    updateControl('humidifier', this.checked);
+document.getElementById('atomizer-control').addEventListener('change', function() {
+    updateControl('atomizer', this.checked);
 });
 
 document.getElementById('water-control').addEventListener('change', function() {
